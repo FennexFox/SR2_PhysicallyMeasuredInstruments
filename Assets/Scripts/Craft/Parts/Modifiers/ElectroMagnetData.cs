@@ -21,9 +21,31 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Size", Order = 2, Tooltip = "Changes the size of the magnet.")]
 		private float _size = 1f;
 
-        public float MagneticForce => _magneticForce;
+        public float MagneticForce
+        {
+            get
+            {
+                return _magneticForce;
+            }
+            private set
+            {
+                _magneticForce = value;
+            //    base.Script.UpdateForce();
+            }
+        }
 
-        public float Size => _size;
+        public float Size
+        {
+            get
+            {
+                return _size;
+            }
+            private set
+            {
+                _size = value;
+            //    base.Script.UpdateSize();
+            }
+        }
 
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
@@ -31,15 +53,19 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             d.OnValueLabelRequested(() => _size, (float x) => Utilities.FormatPercentage(x));
             d.OnPropertyChanged(() => _magneticForce, delegate
             {
-                Script.UpdateForce();
+            //    Script.UpdateForce();
             });
             d.OnPropertyChanged(() => _size, delegate
             {
-                Script.UpdateSize();
+            //    Script.UpdateSize();
             });
-            d.OnAnyPropertyChanged(() => Symmetry.SynchronizePartModifiers(base.Part.PartScript));
+            d.OnAnyPropertyChanged(() => DesignerPropertyChagned());
         }
 
-
+        private void DesignerPropertyChagned()
+        {
+			base.Script.PartScript.CraftScript.RaiseDesignerCraftStructureChangedEvent();
+            Symmetry.SynchronizePartModifiers(base.Part.PartScript);
+        }
     }
 }

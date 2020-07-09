@@ -80,7 +80,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
 		void IDesignerStart.DesignerStart(in DesignerFrameData frame)
 		{
-			Update();
+		//	Update();
 		}
 
         void IFlightFixedUpdate.FlightFixedUpdate(in FlightFrameData frame)
@@ -242,29 +242,29 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             magnet = GameObject.Find("ElectroMagnet");
             trigger = GameObject.Find("Trigger");
             IsColliderReadyForDocking = false;
-            Update();
+        //    Update();
         }
 
-        public void Update()
-        {
-            UpdateForce();
-            UpdateSize();
-        }
+        //public void Update()
+        //{
+        //    UpdateForce();
+        //    UpdateSize();
+        //}
 
-        public void UpdateForce()
-        {
-            trigger.transform.localScale = Vector3.one * Data.MagneticForce;
-        }
+        //public void UpdateForce()
+        //{
+        //    trigger.transform.localScale = Vector3.one * Data.MagneticForce;
+        //}
 
-        public void UpdateSize()
-        {
-            magnet.transform.localScale = Vector3.one * Data.Size;
-            trigger.transform.localScale = Vector3.one / Data.Size;
-        }
+        //public void UpdateSize()
+        //{
+        //    magnet.transform.localScale = Vector3.one * Data.Size;
+        //    trigger.transform.localScale = Vector3.one / Data.Size;
+        //}
 
         public override void OnSymmetry(SymmetryMode mode, IPartScript originalPart, bool created)
         {
-            Update();
+        //    Update();
         }
 
         private static ConfigurableJoint CreateJoint(IBodyScript jointBody, Vector3 jointPosition, Vector3 jointAxis, Vector3 secondaryAxis, Rigidbody connectedBody, Vector3 connectedPosition)
