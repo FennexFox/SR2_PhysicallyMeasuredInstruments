@@ -30,7 +30,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             private set
             {
                 _magneticForce = value;
-            //    base.Script.UpdateForce();
+                base.Script.UpdateForce();
             }
         }
 
@@ -43,7 +43,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             private set
             {
                 _size = value;
-            //    base.Script.UpdateSize();
+                base.Script.UpdateSize();
             }
         }
 
@@ -53,19 +53,19 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             d.OnValueLabelRequested(() => _size, (float x) => Utilities.FormatPercentage(x));
             d.OnPropertyChanged(() => _magneticForce, delegate
             {
-            //    Script.UpdateForce();
+                Script.UpdateForce();
             });
             d.OnPropertyChanged(() => _size, delegate
             {
-            //    Script.UpdateSize();
+                Script.UpdateSize();
             });
             d.OnAnyPropertyChanged(() => DesignerPropertyChagned());
         }
 
         private void DesignerPropertyChagned()
         {
-			base.Script.PartScript.CraftScript.RaiseDesignerCraftStructureChangedEvent();
             Symmetry.SynchronizePartModifiers(base.Part.PartScript);
+			base.Script.PartScript.CraftScript.RaiseDesignerCraftStructureChangedEvent();
         }
     }
 }
