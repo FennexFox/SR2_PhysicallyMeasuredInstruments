@@ -6,6 +6,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     using ModApi.Audio;
     using ModApi.Craft;
     using ModApi.Craft.Parts;
+    using ModApi.Design;
     using ModApi.GameLoop;
     using ModApi.GameLoop.Interfaces;
     using ModApi.Math;
@@ -14,7 +15,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     using System.Collections;
     using UnityEngine;
 
-    public class ElectroMagnetScript : PartModifierScript<ElectroMagnetData>, IFlightFixedUpdate, IGameLoopItem, IFlightUpdate
+    public class ElectroMagnetScript : PartModifierScript<ElectroMagnetData>, IDesignerStart, IFlightFixedUpdate, IGameLoopItem, IFlightUpdate
     {
         private const float ResetTime = 10f;
 
@@ -35,6 +36,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public AttachPoint DockingAttachPoint => base.PartScript.Data.AttachPoints[1];
 
         private GameObject trigger;
+        private GameObject magnet;
 
         public float DockingTime
         {
@@ -75,6 +77,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public bool IsUndocking => _dockResetTimer > 0f;
 
         public ElectroMagnetScript OtherElectroMagnet => _otherElectroMagnet;
+
+		void IDesignerStart.DesignerStart(in DesignerFrameData frame)
+		{
+			Update();
+		}
 
         void IFlightFixedUpdate.FlightFixedUpdate(in FlightFrameData frame)
         {
@@ -121,7 +128,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public string GetStatus()
         {
-            string result = "WHAT";
+            string result = null;
             if (!base.PartScript.Data.Activated)
             {
                 result = "Disabled";
@@ -232,14 +239,32 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             base.OnInitialized();
             _electroMagnetCollider = GetComponentInChildren<ElectroMagnetColliderScript>();
+            magnet = GameObject.Find("ElectroMagnet");
             trigger = GameObject.Find("Trigger");
             IsColliderReadyForDocking = false;
-            UpdateForce ();
+            Update();
+        }
+
+        public void Update()
+        {
+            UpdateForce();
+            UpdateSize();
         }
 
         public void UpdateForce()
         {
             trigger.transform.localScale = Vector3.one * Data.MagneticForce;
+        }
+
+        public void UpdateSize()
+        {
+            magnet.transform.localScale = Vector3.one * Data.Size;
+            trigger.transform.localScale = Vector3.one / Data.Size;
+        }
+
+        public override void OnSymmetry(SymmetryMode mode, IPartScript originalPart, bool created)
+        {
+            Update();
         }
 
         private static ConfigurableJoint CreateJoint(IBodyScript jointBody, Vector3 jointPosition, Vector3 jointAxis, Vector3 secondaryAxis, Rigidbody connectedBody, Vector3 connectedPosition)
@@ -321,22 +346,19 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             CraftScript obj = base.PartScript.CraftScript as CraftScript;
             CraftScript craftScript = otherPort.PartScript.CraftScript as CraftScript;
-            if (obj.CraftNode.IsPlayer && !craftScript.CraftNode.IsPlayer)
-            {
-                _otherElectroMagnet = otherPort;
-                IsColliderReadyForDocking = false;
-                otherPort.IsColliderReadyForDocking = false;
-                _alignmentTime = 0f;
-                IBodyScript bodyScript = base.PartScript.BodyScript;
-                IBodyScript bodyScript2 = otherPort.PartScript.BodyScript;
-                Vector3 jointPosition = GetJointPosition();
-                Vector3 jointPosition2 = otherPort.GetJointPosition();
-                float distance = (jointPosition - jointPosition2).magnitude;
-                _magneticJoint = CreateJoint(bodyScript, jointPosition, bodyScript.Transform.InverseTransformDirection(base.transform.up), bodyScript.Transform.InverseTransformDirection(base.transform.right), bodyScript2.RigidBody, jointPosition2);
-                SetMagneticJointForces(distance);
-                Quaternion targetBodyLocalRotation = Quaternion.FromToRotation(bodyScript.Transform.InverseTransformDirection(otherPort.transform.up), bodyScript.Transform.InverseTransformDirection(-base.transform.up));
-                CraftBuilder.SetJointTargetRotation(_magneticJoint, targetBodyLocalRotation);
-            }
+            _otherElectroMagnet = otherPort;
+            IsColliderReadyForDocking = false;
+            otherPort.IsColliderReadyForDocking = false;
+            _alignmentTime = 0f;
+            IBodyScript bodyScript = base.PartScript.BodyScript;
+            IBodyScript bodyScript2 = otherPort.PartScript.BodyScript;
+            Vector3 jointPosition = GetJointPosition();
+            Vector3 jointPosition2 = otherPort.GetJointPosition();
+            float distance = (jointPosition - jointPosition2).magnitude;
+            _magneticJoint = CreateJoint(bodyScript, jointPosition, bodyScript.Transform.InverseTransformDirection(base.transform.up), bodyScript.Transform.InverseTransformDirection(base.transform.right), bodyScript2.RigidBody, jointPosition2);
+            SetMagneticJointForces(distance);
+            Quaternion targetBodyLocalRotation = Quaternion.FromToRotation(bodyScript.Transform.InverseTransformDirection(otherPort.transform.up), bodyScript.Transform.InverseTransformDirection(-base.transform.up));
+            CraftBuilder.SetJointTargetRotation(_magneticJoint, targetBodyLocalRotation);
         }
 
         private Vector3 GetJointPosition()
@@ -357,8 +379,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private void SetMagneticJointForces(float distance)
         {
+            float distanceMultiplier = distance / 0.25f;
             JointDrive jointDrive = default(JointDrive);
-            jointDrive.maximumForce = Math.Min( Data.MagneticForce / ( distance * distance ), float.MaxValue) ;
+            jointDrive.maximumForce = Math.Min( Data.MagneticForce / ( distanceMultiplier * distanceMultiplier ), float.MaxValue) ;
             jointDrive.positionSpring = float.MaxValue;
             jointDrive.positionDamper = 0f;
             _magneticJoint.xDrive = jointDrive;

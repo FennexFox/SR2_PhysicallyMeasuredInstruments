@@ -157,3 +157,4 @@ MonoBehaviour:
     _partPropertiesEnabled: 1
     _staticPriceAndMass: 0
     _magneticForce: 50
+    _size: 1
