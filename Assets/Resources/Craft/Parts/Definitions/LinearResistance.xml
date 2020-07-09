@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Part name="Linear Motion Resistance">
+  <PartType id="LinearResistance" includeInBodyDrag="true" name="Linear Motion Resistance" prefabPath="Craft/Parts/Prefabs/Shock1.prefab" mass="25" price="5000" partCollisions="Default" allowDesignerReorientationOnPullout="false" defaultMaterials="4,3,2,1,0" subpartsSharePartStyle="false" stylesShareHeader="false">
+    <Modifiers>
+      <Config autoActivateIfNoStageOrActivationGroup="true" buoyancyBaseScale="0" buoyancyUserScale="1" centerOfMass="0,0,0" collisionDisconnectImpulse="10000" collisionDisconnectVelocity="300" collisionExplodeImpulse="30000" collisionExplodeVelocity="450" collisionPreventExternalDisconnections="true" collisionVelocityMode="NormalOnly" dragScale="1" fuelLine="false" heatShield="0" includeInDrag="true" inertiaTensorBaseScale="1" inertiaTensorMin="0.05" inertiaTensorUserScale="1" massScale="1" maxDamage="100" maxTemperature="1500" partCollisionHandling="Default" partCollisionResponse="Default" partScale="1,1,1" preventDebris="false" raiseWaterEventsEvenIfNotBuoyant="false" stageActivationType="None" supportsActivation="false" thermalMassRatio="1" inspectorEnabled="false" partPropertiesEnabled="true" staticPriceAndMass="false" />
+      <LinearMotionResistance resistance="1" dislocation="1" preventBreaking="false" size="1" thickness="1" inspectorEnabled="true" partPropertiesEnabled="true" staticPriceAndMass="false" />
+    </Modifiers>
+    <AttachPoints>
+      <AttachPoint name="AttachPointTop" position="0,0.25,0" rotation="270,0,0" allowRotation="false" allowInvertedConnection="false" canReceive="true" canSeek="true" ignoreSurfaces="false" jointType="Rigid" requiresPhysicsJoint="true" />
+      <AttachPoint name="AttachPointBottom" position="0,-0.25,0" rotation="90,0,0" allowRotation="true" allowInvertedConnection="false" canReceive="true" canSeek="true" ignoreSurfaces="false" />
+    </AttachPoints>
+    <SubpartTypes>
+      <SubpartType index="0" xmlName="" displayName="Part" />
+    </SubpartTypes>
+  </PartType>
+  <DesignerParts>
+    <DesignerPart name="Linear Motion Resistance" category="Gizmos" description="When the force is given, this resistance reacts with a constant set force in opposit direction." order="500" showInDesigner="true" snapshotDistanceScaler="1.25" snapshotRotation="30,30,0">
+      <Assembly>
+        <Parts>
+          <Part id="1" partType="LinearResistance" position="0,0,0" rotation="0,0,0">
+            <Config />
+            <LinearMotionResistance />
+          </Part>
+        </Parts>
+      </Assembly>
+    </DesignerPart>
+  </DesignerParts>
+  <PartStyles>
+    <SubpartStyles subpartIndex="0">
+      <Style id="Default" displayName="Default">
+        <TextureStyles>
+          <TextureStyle id="Default" />
+        </TextureStyles>
+      </Style>
+    </SubpartStyles>
+  </PartStyles>
+</Part>

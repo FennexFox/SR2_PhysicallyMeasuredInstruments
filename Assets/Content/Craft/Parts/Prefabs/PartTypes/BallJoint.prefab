@@ -1,0 +1,167 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2402262154470574986
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5273827027003521838}
+  - component: {fileID: 2468001617673571516}
+  - component: {fileID: 7228938607362027955}
+  - component: {fileID: 5612018535664361267}
+  - component: {fileID: 5808050039494105016}
+  m_Layer: 0
+  m_Name: BallJoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5273827027003521838
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2402262154470574986}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2468001617673571516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2402262154470574986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1298369543, guid: 43320b5f70320504aa4b1543184e13b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Data:
+    _allowDesignerReorientationOnPullout: 0
+    _allowIndividualPartRemoval: 0
+    _defaultColorIndexPrimary: 4
+    _defaultColorIndexTrim1: 3
+    _defaultColorIndexTrim2: 2
+    _defaultColorIndexTrim3: 1
+    _defaultColorIndexTrim4: 0
+    _id: BallJoint
+    _includeInBodyDrag: 1
+    _mirrorConfig:
+      _hasRotationOffset: 0
+      _rotationOffsetEuler: {x: -0, y: 0, z: 0}
+    _name: Ball Joint
+    _partCollisionHandling: 0
+    _price: 30000
+    _unscaledMass: 50
+    _usePreferredNodeName: 1
+--- !u!114 &7228938607362027955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2402262154470574986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -631517893, guid: 43320b5f70320504aa4b1543184e13b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Data:
+    _activationGroup: 0
+    _category: {fileID: 11400000, guid: baf3e4480680ff04cb00b99444895dc1, type: 2}
+    _description: A Ball Joint which let attached part to swing around in any axis.
+    _displayOrder: 600
+    _iconPath: 
+    _iconType: 0
+    _name: Ball Joint
+    _partTypeOverrides: []
+    _position: {x: 0, y: 0, z: 0}
+    _rotation: {x: -90, y: -90, z: 0}
+    _showInDesigner: 1
+    _snapshotDistanceScaler: 1.25
+    _snapshotPartOffset: {x: 0, y: 0, z: 0}
+    _snapshotPartRotation: {x: 0, y: 0, z: 0}
+    _snapshotRotation: {x: 30, y: -45, z: 0}
+--- !u!114 &5612018535664361267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2402262154470574986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -841283480, guid: 43320b5f70320504aa4b1543184e13b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Data:
+    _id: 
+    _inputId: 
+    _inspectorEnabled: 0
+    _partPropertiesEnabled: 1
+    _staticPriceAndMass: 0
+    _autoActivateIfNoStageOrActivationGroup: 1
+    _buoyancyBaseScale: 0
+    _buoyancyUserScale: 1
+    _centerOfMass: {x: 0, y: 0, z: 0}
+    _collisionDisconnectImpulse: 1000
+    _collisionDisconnectVelocity: 15
+    _collisionExplodeImpulse: 2000
+    _collisionExplodeVelocity: 30
+    _collisionPreventExternalDisconnections: 0
+    _collisionVelocityMode: 2
+    _dragScale: 1
+    _fuelLine: 0
+    _heatShield: 0
+    _includeInDrag: 1
+    _inertiaTensorBaseScale: 1
+    _inertiaTensorMin: 0.05
+    _inertiaTensorUserScale: 1
+    _massScale: 1
+    _maxDamage: 100
+    _maxTemperature: 1500
+    _partCollisionHandling: 0
+    _partCollisionResponse: 2
+    _partScale: {x: 1, y: 1, z: 1}
+    _preventDebris: 0
+    _raiseWaterEventsEvenIfNotBuoyant: 0
+    _stageActivationType: 0
+    _supportsActivation: 1
+    _thermalMassRatio: 1
+--- !u!114 &5808050039494105016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2402262154470574986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07bd45128fa193d49956749784f7b36f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Data:
+    _id: 
+    _inputId: 
+    _inspectorEnabled: 1
+    _partPropertiesEnabled: 1
+    _staticPriceAndMass: 0
+    _angle: 0
+    _attachPointIndex: 0
+    _baseMode: 0
+    _currentAngle: 0
+    _maxRange: 90
+    _minRange: 0
+    _range: 30
+    _springForce: 0
+    _damperForce: 0

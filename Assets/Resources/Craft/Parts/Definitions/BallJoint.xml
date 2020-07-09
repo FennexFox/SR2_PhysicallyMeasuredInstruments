@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Part name="Ball Joint">
+  <PartType id="BallJoint" includeInBodyDrag="true" name="Ball Joint" prefabPath="Craft/Parts/Prefabs/HingeRotator1.prefab" mass="50" price="30000" partCollisions="Default" allowDesignerReorientationOnPullout="false" defaultMaterials="4,3,2,1,0" subpartsSharePartStyle="false" stylesShareHeader="false">
+    <Modifiers>
+      <Config autoActivateIfNoStageOrActivationGroup="true" buoyancyBaseScale="0" buoyancyUserScale="1" centerOfMass="0,0,0" collisionDisconnectImpulse="1000" collisionDisconnectVelocity="15" collisionExplodeImpulse="2000" collisionExplodeVelocity="30" collisionPreventExternalDisconnections="false" collisionVelocityMode="NormalOnly" dragScale="1" fuelLine="false" heatShield="0" includeInDrag="true" inertiaTensorBaseScale="1" inertiaTensorMin="0.05" inertiaTensorUserScale="1" massScale="1" maxDamage="100" maxTemperature="1500" partCollisionHandling="Default" partCollisionResponse="Default" partScale="1,1,1" preventDebris="false" raiseWaterEventsEvenIfNotBuoyant="false" stageActivationType="None" supportsActivation="true" thermalMassRatio="1" inspectorEnabled="false" partPropertiesEnabled="true" staticPriceAndMass="false" />
+      <BallJoint angle="0" attachPointIndex="0" baseMode="Normal" currentAngle="0" maxRange="90" minRange="0" range="30" springForce="0" damperForce="0" inspectorEnabled="true" partPropertiesEnabled="true" staticPriceAndMass="false" />
+    </Modifiers>
+    <AttachPoints>
+      <AttachPoint name="AttachPointTop" tag="Top" position="0,0.1248002,0" rotation="270,0,0" allowRotation="false" allowInvertedConnection="false" canReceive="true" canSeek="false" ignoreSurfaces="false" jointType="Hinge" localJointAxis="1,0,0" requiresPhysicsJoint="true" />
+      <AttachPoint name="AttachPointBottom" position="0,0,0" rotation="90,0,0" allowRotation="true" allowInvertedConnection="false" canReceive="true" canSeek="true" ignoreSurfaces="false" />
+    </AttachPoints>
+    <SubpartTypes>
+      <SubpartType index="0" xmlName="" displayName="Part" />
+    </SubpartTypes>
+  </PartType>
+  <DesignerParts>
+    <DesignerPart name="Ball Joint" category="Gizmos" description="A Ball Joint which let attached part to swing around in any axis." order="600" showInDesigner="true" snapshotDistanceScaler="1.25" snapshotRotation="30,-45,0">
+      <Assembly>
+        <Parts>
+          <Part id="1" partType="BallJoint" position="0,0,0" rotation="-90,-90,0">
+            <Config />
+            <BallJoint />
+          </Part>
+        </Parts>
+      </Assembly>
+    </DesignerPart>
+    <DesignerPart name="Spring-Locked Ball Joint" category="Gizmos" description="A Ball joint locked with springs." order="600" showInDesigner="true" snapshotDistanceScaler="1.25" snapshotRotation="30,-45,0">
+      <Assembly>
+        <Parts>
+          <Part id="1" partType="BallJoint" position="0,0,0" rotation="-90,-90,0">
+            <Config />
+            <BallJoint springForce="1" />
+          </Part>
+        </Parts>
+      </Assembly>
+    </DesignerPart>
+  </DesignerParts>
+  <PartStyles>
+    <SubpartStyles subpartIndex="0">
+      <Style id="Default" displayName="Default">
+        <TextureStyles>
+          <TextureStyle id="HingeRotator1" />
+        </TextureStyles>
+      </Style>
+    </SubpartStyles>
+  </PartStyles>
+</Part>
