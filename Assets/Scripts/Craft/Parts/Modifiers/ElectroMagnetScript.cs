@@ -328,8 +328,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             partConnection.BodyJointData = new BodyJointData(partConnection);
             partConnection.BodyJointData.Axis = Vector3.right;
             partConnection.BodyJointData.SecondaryAxis = Vector3.up;
-            partConnection.BodyJointData.Position = bodyScript.Transform.InverseTransformPoint(base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter /2f));
-            partConnection.BodyJointData.ConnectedPosition = bodyScript2.Transform.InverseTransformPoint(otherPort.PartScript.Transform.TransformPoint(otherPort.DockingAttachPoint.Position * Data.Diameter / 2f));
+            partConnection.BodyJointData.Position = bodyScript.Transform.InverseTransformPoint(base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter));
+            partConnection.BodyJointData.ConnectedPosition = bodyScript2.Transform.InverseTransformPoint(otherPort.PartScript.Transform.TransformPoint(otherPort.DockingAttachPoint.Position * Data.Diameter));
             partConnection.BodyJointData.BreakTorque = 100000f;
             partConnection.BodyJointData.JointType = BodyJointData.BodyJointType.Docking;
             partConnection.BodyJointData.Body = bodyScript.Data;
@@ -372,7 +372,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private Vector3 GetJointWorldPosition()
         {
-            return base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter / 2f);
+            return base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter);
         }
 
         private IEnumerator OnDockingCompleteNextFrame(string playerCraftName, string otherCraftName)
