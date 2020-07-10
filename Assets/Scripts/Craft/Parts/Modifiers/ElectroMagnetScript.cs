@@ -264,7 +264,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             trigger.transform.localScale = Vector3.one / Data.Diameter;
 
             if (Game.InDesignerScene) {
-            Vector3 position = new Vector3(0f, 0.125f, 0f) * Data.Diameter;
+            Vector3 position = new Vector3(0f, 0.0625f, 0f) * Data.Diameter;
             
                 foreach (AttachPoint attachPoint in base.PartScript.Data.AttachPoints) {
                     if (attachPoint.Tag == "Body") {
