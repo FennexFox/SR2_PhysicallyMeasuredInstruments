@@ -92,7 +92,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 return;
             }
             _distance = (_otherElectroMagnet.GetJointWorldPosition() - GetJointWorldPosition()).magnitude;
-            if (_distance > 1.5f || _otherElectroMagnet.PartScript.Data.IsDestroyed)
+            if (_otherElectroMagnet.PartScript.Data.IsDestroyed)
             {
                 DestroyMagneticJoint(readyForDocking: true);
                 return;
@@ -129,8 +129,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public string GetText(string Label)
         {
             string result = null;
-            if (!base.PartScript.Data.Activated) {result = "Disabled";}
-            else if (IsColliderReadyForDocking) {result = "Ready";}
+            if (!base.PartScript.Data.Activated) {result = "Turned Off";}
+            else if (IsColliderReadyForDocking) {result = "Standby";}
             else if (IsDocking){if (Label == "Status")
                 {
                     if (_alignmentTime <= Time.deltaTime) {result = "Attracting";}
@@ -148,10 +148,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public override void OnDeactivated()
         {
             base.OnDeactivated();
-            if (IsDocked)
-            {
-                Undock();
-            }
+            if (IsDocked) {Undock();}
+            if (_otherElectroMagnet != null) {DestroyMagneticJoint(readyForDocking: false);}
         }
 
         public override void OnGenerateInspectorModel(PartInspectorModel model)
@@ -181,7 +179,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void OnTouchDockingPort(ElectroMagnetScript otherDockingPort)
         {
-            if (IsReadyForDocking && otherDockingPort.IsReadyForDocking)
+            if (IsReadyForDocking)
             {
                 Dock(otherDockingPort);
             }
@@ -254,11 +252,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public void UpdateSize()
         {
             magnet.transform.localScale = Vector3.one * Data.Diameter;
-            trigger.transform.localScale = Vector3.one / Data.Diameter;
+            trigger.transform.localScale = trigger.transform.localScale / Data.Diameter;
 
             if (Game.InDesignerScene) {
-            Vector3 position = new Vector3(0f, 0.0625f, 0f) * Data.Diameter;
-            
+                Vector3 position = new Vector3(0f, 0.125f, 0f) * Data.Diameter;
                 foreach (AttachPoint attachPoint in base.PartScript.Data.AttachPoints) {
                     if (attachPoint.Tag == "Body") {
                         attachPoint.AttachPointScript.transform.localPosition = -position;
@@ -331,8 +328,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             partConnection.BodyJointData = new BodyJointData(partConnection);
             partConnection.BodyJointData.Axis = Vector3.right;
             partConnection.BodyJointData.SecondaryAxis = Vector3.up;
-            partConnection.BodyJointData.Position = bodyScript.Transform.InverseTransformPoint(base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter));
-            partConnection.BodyJointData.ConnectedPosition = bodyScript2.Transform.InverseTransformPoint(otherPort.PartScript.Transform.TransformPoint(otherPort.DockingAttachPoint.Position * Data.Diameter));
+            partConnection.BodyJointData.Position = bodyScript.Transform.InverseTransformPoint(base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter /2f));
+            partConnection.BodyJointData.ConnectedPosition = bodyScript2.Transform.InverseTransformPoint(otherPort.PartScript.Transform.TransformPoint(otherPort.DockingAttachPoint.Position * Data.Diameter / 2f));
             partConnection.BodyJointData.BreakTorque = 100000f;
             partConnection.BodyJointData.JointType = BodyJointData.BodyJointType.Docking;
             partConnection.BodyJointData.Body = bodyScript.Data;
@@ -375,7 +372,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private Vector3 GetJointWorldPosition()
         {
-            return base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter);
+            return base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter / 2f);
         }
 
         private IEnumerator OnDockingCompleteNextFrame(string playerCraftName, string otherCraftName)

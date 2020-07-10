@@ -62,7 +62,7 @@ MonoBehaviour:
     _name: ElectroMagnet
     _partCollisionHandling: 0
     _price: 0
-    _unscaledMass: 0
+    _unscaledMass: 5
     _usePreferredNodeName: 1
 --- !u!114 &36439903172785449
 MonoBehaviour:

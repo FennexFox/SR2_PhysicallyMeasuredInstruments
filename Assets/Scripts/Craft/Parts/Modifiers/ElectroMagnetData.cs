@@ -49,6 +49,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         }
 
         ISliderProperty forceSlider;
+        public override float Mass => 100f * Diameter * Diameter * Diameter * 0.01f;
         public float minVal;
         public float maxVal;
 
