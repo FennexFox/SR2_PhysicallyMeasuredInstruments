@@ -107,7 +107,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 7600716341292529796}
+  - {fileID: 5744754865970851668}
   m_Father: {fileID: 3995690170166292199}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -221,7 +221,7 @@ MonoBehaviour:
     _requiresPhysicsJoint: 0
     _surfaceCollider: {fileID: 0}
     _surfaceColliderName: 
-    _tag: 
+    _tag: Body
 --- !u!1 &5904217213988154844
 GameObject:
   m_ObjectHideFlags: 0
@@ -300,7 +300,7 @@ Transform:
   m_GameObject: {fileID: 6508345226652088301}
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5825429863326906339}
   - {fileID: 2751962795505618231}
@@ -442,7 +442,7 @@ MonoBehaviour:
     _requiresPhysicsJoint: 0
     _surfaceCollider: {fileID: 0}
     _surfaceColliderName: 
-    _tag: 
+    _tag: Magnet
 --- !u!1 &7237115809123424499
 GameObject:
   m_ObjectHideFlags: 0
@@ -685,7 +685,7 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2036927295076363471}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &5853914154881101445
+--- !u!1001 &8646652660839971157
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -754,9 +754,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e82acf59411d37b46981882b1a96d596, type: 3}
---- !u!4 &7600716341292529796 stripped
+--- !u!4 &5744754865970851668 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4055048178363192833, guid: e82acf59411d37b46981882b1a96d596,
     type: 3}
-  m_PrefabInstance: {fileID: 5853914154881101445}
+  m_PrefabInstance: {fileID: 8646652660839971157}
   m_PrefabAsset: {fileID: 0}

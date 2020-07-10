@@ -3,6 +3,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     using Assets.Scripts;
     using Assets.Scripts.Craft;
     using Assets.Scripts.Flight.Sim;
+    using ModApi;
     using ModApi.Audio;
     using ModApi.Craft;
     using ModApi.Craft.Parts;
@@ -21,6 +22,12 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private float _alignmentTime;
 
+        private float _maxAlignmentTime = 1F;
+
+        private float _force;
+
+        private float _distance;
+
         private ElectroMagnetColliderScript _electroMagnetCollider;
 
         private float _dockResetTimer;
@@ -35,8 +42,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public AttachPoint DockingAttachPoint => base.PartScript.Data.AttachPoints[1];
 
-        private GameObject trigger;
-        private GameObject magnet;
+        private Transform trigger;
+        private Transform magnet;
+        private Transform magnetPoint;
+        private Transform bodyjoint;
 
         public float DockingTime
         {
@@ -89,29 +98,27 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             {
                 return;
             }
-            float magnitude = (_otherElectroMagnet.GetJointWorldPosition() - GetJointWorldPosition()).magnitude;
-            if (magnitude > 1.5f || _otherElectroMagnet.PartScript.Data.IsDestroyed)
+            _distance = (_otherElectroMagnet.GetJointWorldPosition() - GetJointWorldPosition()).magnitude;
+            if (_distance > 1.5f || _otherElectroMagnet.PartScript.Data.IsDestroyed)
             {
                 DestroyMagneticJoint(readyForDocking: true);
                 return;
             }
             float num = Vector3.Dot(-base.transform.up, _otherElectroMagnet.transform.up);
-            if (num > 0.9999f && magnitude <= 0.01f)
+            if (num > 0.9999f && _distance <= 0.01f)
             {
                 _alignmentTime += frame.DeltaTime;
             }
             else
             {
-                _alignmentTime = 0f;
+                _alignmentTime -= frame.DeltaTime; // need correction
             }
-            float value = (num - 0.99f) / 0.01f * Mathf.Lerp(1f, 0f, Mathf.Clamp01(magnitude * 20f));
-            _inspectorDockingStatusPercentage = Mathf.Clamp01(value);
-            if (_alignmentTime > 1f)
+            if (_alignmentTime > _maxAlignmentTime)
             {
                 CompleteDockConnection();
                 return;
             }
-            SetMagneticJointForces(magnitude);
+            SetMagneticJointForces(_distance);
         }
 
         void IFlightUpdate.FlightUpdate(in FlightFrameData frame)
@@ -126,29 +133,22 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
-        public string GetStatus()
+        public string GetText(string Label)
         {
             string result = null;
-            if (!base.PartScript.Data.Activated)
-            {
-                result = "Disabled";
+            if (!base.PartScript.Data.Activated) {result = "Disabled";}
+            else if (IsColliderReadyForDocking) {result = "Ready";}
+            else if (IsDocking){if (Label == "Status")
+                {
+                    if (_alignmentTime <= Time.deltaTime) {result = "Attracting";}
+                    else {result = $"Aligning ({Units.GetPercentageString(_alignmentTime, _maxAlignmentTime)})";}
+                }
+                else if (Label == "Distance") {result = $"{_distance.ToString("F")}m";}
+                else if (Label == "Force") {result = Units.GetForceString(_force);}
+                else {result = null;}
             }
-            else if (IsColliderReadyForDocking)
-            {
-                result = "Ready";
-            }
-            else if (IsDocking)
-            {
-                result = $"Docking ({Units.GetPercentageString(_inspectorDockingStatusPercentage)})";
-            }
-            else if (IsDocked)
-            {
-                result = "Docked";
-            }
-            else if (_dockResetTimer > 0f)
-            {
-                result = "Undocking";
-            }
+            else if (IsDocked) {result = "Docked";}
+            else if (_dockResetTimer > 0f) {result = "Undocking";}
             return result;
         }
 
@@ -163,7 +163,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public override void OnGenerateInspectorModel(PartInspectorModel model)
         {
-            model.Add(new TextModel("Status", () => GetStatus()));
+            model.Add(new TextModel("Status", () => GetText("Status")));
+            model.Add(new TextModel("Distance", () => GetText("Distance")));
+            model.Add(new TextModel("Force", () => GetText("Force")));
             IconButtonModel iconButtonModel = new IconButtonModel("Ui/Sprites/Flight/IconPartInspectorUndock", delegate
             {
                 Undock();
@@ -239,8 +241,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             base.OnInitialized();
             _electroMagnetCollider = GetComponentInChildren<ElectroMagnetColliderScript>();
-            magnet = GameObject.Find("ElectroMagnet");
-            trigger = GameObject.Find("Trigger");
+            magnet = Utilities.FindFirstGameObjectMyselfOrChildren("ElectroMagnet", base.PartScript.GameObject).transform;;
+            trigger = Utilities.FindFirstGameObjectMyselfOrChildren("Trigger", base.PartScript.GameObject).transform;
             IsColliderReadyForDocking = false;
             Update();
         }
@@ -253,13 +255,25 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void UpdateForce()
         {
-            trigger.transform.localScale = Vector3.up * Data.MagneticForce;
+            trigger.transform.localScale = Vector3.one * Data.MagneticForce;
         }
 
         public void UpdateSize()
         {
-            magnet.transform.localScale = Vector3.one * Data.Size;
-            trigger.transform.localScale = Vector3.one / Data.Size;
+            magnet.transform.localScale = Vector3.one * Data.Diameter;
+            trigger.transform.localScale = Vector3.one / Data.Diameter;
+
+            if (Game.InDesignerScene) {
+            Vector3 position = new Vector3(0f, 0.125f, 0f) * Data.Diameter;
+            
+                foreach (AttachPoint attachPoint in base.PartScript.Data.AttachPoints) {
+                    if (attachPoint.Tag == "Body") {
+                        attachPoint.AttachPointScript.transform.localPosition = -position;
+                    } else if (attachPoint.Tag == "Magnet") {
+                        attachPoint.AttachPointScript.transform.localPosition = position;
+                    }
+                }
+            }
         }
 
         public override void OnSymmetry(SymmetryMode mode, IPartScript originalPart, bool created)
@@ -324,8 +338,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             partConnection.BodyJointData = new BodyJointData(partConnection);
             partConnection.BodyJointData.Axis = Vector3.right;
             partConnection.BodyJointData.SecondaryAxis = Vector3.up;
-            partConnection.BodyJointData.Position = bodyScript.Transform.InverseTransformPoint(base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position));
-            partConnection.BodyJointData.ConnectedPosition = bodyScript2.Transform.InverseTransformPoint(otherPort.PartScript.Transform.TransformPoint(otherPort.DockingAttachPoint.Position));
+            partConnection.BodyJointData.Position = bodyScript.Transform.InverseTransformPoint(base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter));
+            partConnection.BodyJointData.ConnectedPosition = bodyScript2.Transform.InverseTransformPoint(otherPort.PartScript.Transform.TransformPoint(otherPort.DockingAttachPoint.Position * Data.Diameter));
             partConnection.BodyJointData.BreakTorque = 100000f;
             partConnection.BodyJointData.JointType = BodyJointData.BodyJointType.Docking;
             partConnection.BodyJointData.Body = bodyScript.Data;
@@ -368,7 +382,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private Vector3 GetJointWorldPosition()
         {
-            return base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position);
+            return base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter);
         }
 
         private IEnumerator OnDockingCompleteNextFrame(string playerCraftName, string otherCraftName)
@@ -379,9 +393,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private void SetMagneticJointForces(float distance)
         {
-            float distanceMultiplier = ( distance + 0.125f ) / 0.125f;
+            float distanceOffset = 0.125f * Data.Diameter;
+            float distanceMultiplier = ( distance + distanceOffset ) / distanceOffset;
             JointDrive jointDrive = default(JointDrive);
-            jointDrive.maximumForce = Math.Min( Data.MagneticForce / ( distanceMultiplier * distanceMultiplier ), float.MaxValue) ;
+            jointDrive.maximumForce = Math.Min( Data.MagneticForce / ( distanceMultiplier * distanceMultiplier ), float.MaxValue);
+            _force = jointDrive.maximumForce;
             jointDrive.positionSpring = float.MaxValue;
             jointDrive.positionDamper = 0f;
             _magneticJoint.xDrive = jointDrive;

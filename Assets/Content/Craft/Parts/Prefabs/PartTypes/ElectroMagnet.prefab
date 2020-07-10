@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Data:
-    _allowDesignerReorientationOnPullout: 1
+    _allowDesignerReorientationOnPullout: 0
     _allowIndividualPartRemoval: 0
     _defaultColorIndexPrimary: 0
     _defaultColorIndexTrim1: 1
@@ -156,5 +156,7 @@ MonoBehaviour:
     _inspectorEnabled: 1
     _partPropertiesEnabled: 1
     _staticPriceAndMass: 0
-    _magneticForce: 50
+    _magneticForce: 1
     _size: 1
+    minVal: 0
+    maxVal: 0
