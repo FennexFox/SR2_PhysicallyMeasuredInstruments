@@ -15,8 +15,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     public class ElectroMagnetData : PartModifierData<ElectroMagnetScript>
     {
         [SerializeField]
-		[DesignerPropertySlider(80000f, 240000f, 101, Label = "Magnetic Force", Order = 1, Tooltip = "Magnetic Force of the electro magnet at its surface(Diameter * 0.125m).")]
-		private float _magneticForce = 160000f;
+		[DesignerPropertySlider(800f, 2400f, 101, Label = "Magnetic Force", Order = 1, Tooltip = "Magnetic Force of the electro magnet at its surface(Diameter * 0.125m).")]
+		private float _magneticForce = 1600f;
 
         [SerializeField]
 		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Diameter", Order = 2, Tooltip = "Changes the size of the magnet.")]
@@ -55,8 +55,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
-            minVal = 80000f * Diameter * Diameter;
-            maxVal = 240000f * Diameter * Diameter;
+            minVal = 800f * Diameter * Diameter;
+            maxVal = 2400f * Diameter * Diameter;
 
 			d.OnValueLabelRequested(() => _magneticForce, (float x) => Units.GetForceString(x));
             d.OnValueLabelRequested(() => _size, (float x) => x.ToString("F"));
@@ -67,8 +67,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 (x, y) =>
                 {
                     Script.UpdateSize();
-                    minVal = 80000f * x * x;
-                    maxVal = 240000f * x * x;
+                    minVal = 800f * x * x;
+                    maxVal = 2400f * x * x;
                     forceSlider.UpdateSliderSettings(minVal, maxVal, 101);
                     MagneticForce = Mathf.Clamp(MagneticForce, minVal, maxVal);
                 }
