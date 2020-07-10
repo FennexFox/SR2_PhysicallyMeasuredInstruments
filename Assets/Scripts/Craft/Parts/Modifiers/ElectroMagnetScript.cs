@@ -201,11 +201,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 ElectroMagnetScript modifier = partConnection.GetOtherPart(base.PartScript.Data).PartScript.GetModifier<ElectroMagnetScript>();
                 if (modifier != null)
                 {
-                    modifier._dockResetTimer = 10f;
+                    modifier._dockResetTimer = 0.5f;
                     modifier.IsColliderReadyForDocking = false;
                     modifier.DockingTime = 0f;
                 }
-                _dockResetTimer = 10f;
+                _dockResetTimer = 0.5f;
                 IsColliderReadyForDocking = false;
                 DockingTime = 0f;
                 Collider[] componentsInChildren = GetComponentsInChildren<Collider>();
