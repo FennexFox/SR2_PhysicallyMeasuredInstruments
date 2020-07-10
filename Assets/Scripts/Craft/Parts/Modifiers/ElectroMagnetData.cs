@@ -49,15 +49,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         }
 
         ISliderProperty forceSlider;
-        public override float Mass => 100f * Diameter * Diameter * Diameter * 0.01f;
-        public float minVal;
-        public float maxVal;
+        public override float Mass => 8000f * Diameter * Diameter * Diameter * 0.01f;
 
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
-            minVal = 800f * Diameter * Diameter;
-            maxVal = 2400f * Diameter * Diameter;
-
 			d.OnValueLabelRequested(() => _magneticForce, (float x) => Units.GetForceString(x));
             d.OnValueLabelRequested(() => _size, (float x) => x.ToString("F"));
             d.OnPropertyChanged(() => _magneticForce, (x, y) => {Script.UpdateForce();});
@@ -67,14 +62,14 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 (x, y) =>
                 {
                     Script.UpdateSize();
-                    minVal = 800f * x * x;
-                    maxVal = 2400f * x * x;
+                    float minVal = 80000f * x * x;
+                    float maxVal = 240000f * x * x;
                     forceSlider.UpdateSliderSettings(minVal, maxVal, 101);
                     MagneticForce = Mathf.Clamp(MagneticForce, minVal, maxVal);
                 }
             );
             d.OnAnyPropertyChanged(() => DesignerPropertyChagned());
-            d.OnSliderActivated(() => _magneticForce, (ISliderProperty x) => {x.UpdateSliderSettings(minVal, maxVal, 101); forceSlider = x;});
+            d.OnSliderActivated(() => _magneticForce, (ISliderProperty x) => {x.UpdateSliderSettings(80000f * _size * _size, 240000f * _size * _size, 101); forceSlider = x;});
         }
 
         private void DesignerPropertyChagned()
