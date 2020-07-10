@@ -32,11 +32,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private float _dockResetTimer;
 
-        private float _inspectorDockingStatusPercentage;
-
         private ConfigurableJoint _magneticJoint;
-
-        private float _magneticJointForce;
 
         private ElectroMagnetScript _otherElectroMagnet;
 
@@ -52,8 +48,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             get;
             private set;
         }
-
-        public float InspectorDockingStatusPercentage => _inspectorDockingStatusPercentage;
 
         public bool IsColliderReadyForDocking
         {
