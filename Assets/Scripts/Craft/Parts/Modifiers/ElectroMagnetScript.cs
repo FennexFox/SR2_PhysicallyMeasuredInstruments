@@ -39,9 +39,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public AttachPoint DockingAttachPoint => base.PartScript.Data.AttachPoints[1];
 
         private Transform trigger;
+
         private Transform magnet;
-        private Transform magnetPoint;
-        private Transform bodyjoint;
 
         public float DockingTime
         {
