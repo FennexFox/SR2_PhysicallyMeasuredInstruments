@@ -93,6 +93,9 @@ ModelImporter:
   additionalBone: 0
   userData: <PartModelData><PartMeshData id="Cylinder" submeshCount="1" isCollider="false"
     subpartId="0" submeshMap="0" /><PartMeshData id="Cylinder.001" submeshCount="1"
-    isCollider="false" subpartId="0" submeshMap="4" /></PartModelData>
+    isCollider="false" subpartId="0" submeshMap="4" /><PartMeshData id="LatchBase"
+    submeshCount="1" isCollider="false" subpartId="0" submeshMap="0" /><PartMeshData
+    id="LatchPetal" submeshCount="1" isCollider="false" subpartId="0" submeshMap="2"
+    /></PartModelData>
   assetBundleName: 
   assetBundleVariant: 

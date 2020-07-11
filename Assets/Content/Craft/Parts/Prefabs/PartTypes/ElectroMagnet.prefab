@@ -158,3 +158,4 @@ MonoBehaviour:
     _staticPriceAndMass: 0
     _magneticForce: 1
     _size: 1
+    _latchSize: 1

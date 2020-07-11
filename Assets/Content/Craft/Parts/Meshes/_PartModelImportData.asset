@@ -29,5 +29,19 @@ MonoBehaviour:
         type: 3}
       _submeshMap: 04000000
       _subpartId: 0
+    - _id: LatchBase
+      _initialized: 1
+      _isCollider: 0
+      _mesh: {fileID: 7076954607464121559, guid: 214b4a25e0902ec499b632be7ff3a67a,
+        type: 3}
+      _submeshMap: 00000000
+      _subpartId: 0
+    - _id: LatchPetal
+      _initialized: 1
+      _isCollider: 0
+      _mesh: {fileID: -7654487859614396684, guid: 214b4a25e0902ec499b632be7ff3a67a,
+        type: 3}
+      _submeshMap: 02000000
+      _subpartId: 0
     _model: {fileID: -927199367670048503, guid: 214b4a25e0902ec499b632be7ff3a67a,
       type: 3}

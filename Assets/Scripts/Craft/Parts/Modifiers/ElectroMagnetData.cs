@@ -22,6 +22,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Diameter", Order = 2, Tooltip = "Changes the size of the magnet.")]
 		private float _size = 1f;
 
+        [SerializeField]
+		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Latch Diameter", Order = 3, Tooltip = "Changes the size of the locking mehchanism.")]
+		private float _latchSize = 1f;
+
         public float MagneticForce
         {
             get
@@ -48,6 +52,19 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
+        public float LatchSize
+        {
+            get
+            {
+                return _latchSize;
+            }
+            private set
+            {
+                _latchSize = value;
+                base.Script.UpdateSize();
+            }
+        }
+
         ISliderProperty forceSlider;
 
         public override float Mass => 8000f * Diameter * Diameter * Diameter * 0.01f;
@@ -55,7 +72,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
 			d.OnValueLabelRequested(() => _magneticForce, (float x) => Units.GetForceString(x * 0.01f));
-            d.OnValueLabelRequested(() => _size, (float x) => x.ToString("F"));
+            d.OnValueLabelRequested(() => _size, (float x) => $"{x.ToString("F")}m");
+            d.OnValueLabelRequested(() => _latchSize, (float x) => $"{LatchSize.ToString("F")}m");
+
             d.OnPropertyChanged(() => _magneticForce, (x, y) => {Script.UpdateForce();});
             d.OnPropertyChanged
             (
@@ -67,9 +86,12 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     float maxVal = 240000f * x * x;
                     forceSlider.UpdateSliderSettings(minVal, maxVal, 101);
                     MagneticForce = Mathf.Clamp(MagneticForce, minVal, maxVal);
+                    LatchSize = Math.Max(x, LatchSize);
                 }
             );
+            d.OnPropertyChanged(() => _latchSize, (x, y) => {Script.UpdateSize(); LatchSize = Math.Max(x, Diameter);});
             d.OnAnyPropertyChanged(() => DesignerPropertyChagned());
+
             d.OnSliderActivated(() => _magneticForce, (ISliderProperty x) => {x.UpdateSliderSettings(80000f * _size * _size, 240000f * _size * _size, 101); forceSlider = x;});
         }
 

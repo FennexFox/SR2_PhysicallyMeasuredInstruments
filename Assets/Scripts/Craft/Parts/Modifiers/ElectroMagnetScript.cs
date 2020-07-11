@@ -42,6 +42,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private Transform magnet;
 
+        private Transform latchBase;
+
+        private Transform latchPetal;
+
         public float DockingTime
         {
             get;
@@ -234,6 +238,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             _electroMagnetCollider = GetComponentInChildren<ElectroMagnetColliderScript>();
             magnet = Utilities.FindFirstGameObjectMyselfOrChildren("ElectroMagnet", base.PartScript.GameObject).transform;;
             trigger = Utilities.FindFirstGameObjectMyselfOrChildren("Trigger", base.PartScript.GameObject).transform;
+            latchBase = Utilities.FindFirstGameObjectMyselfOrChildren("LatchBase", base.PartScript.GameObject).transform;
+            latchPetal = Utilities.FindFirstGameObjectMyselfOrChildren("LatchPetal", base.PartScript.GameObject).transform;
             IsColliderReadyForDocking = false;
             Update();
         }
@@ -252,6 +258,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public void UpdateSize()
         {
             magnet.transform.localScale = Vector3.one * Data.Diameter;
+            latchBase.transform.localScale = Vector3.one * Data.LatchSize;
+            latchBase.transform.localPosition = new Vector3(0f, (Data.Diameter - Data.LatchSize) * 0.125f, 0f);
             trigger.transform.localScale = trigger.transform.localScale / Data.Diameter;
 
             if (Game.InDesignerScene) {
