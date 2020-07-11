@@ -67,7 +67,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         ISliderProperty forceSlider;
 
-        public override float Mass => 8000f * Diameter * Diameter * Diameter * 0.01f;
+        public override float Mass => (8000f * Diameter * Diameter * Diameter + 25f * LatchSize * LatchSize * LatchSize) * 0.01f;
 
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
