@@ -15,8 +15,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     public class ElectroMagnetData : PartModifierData<ElectroMagnetScript>
     {
         [SerializeField]
-		[DesignerPropertySlider(800f, 2400f, 101, Label = "Magnetic Force", Order = 1, Tooltip = "Magnetic Force of the electro magnet at its surface(Diameter * 0.125m).")]
-		private float _magneticForce = 1600f;
+		[DesignerPropertySlider(80000f, 240000f, 101, Label = "Magnetic Force", Order = 1, Tooltip = "Magnetic Force of the electro magnet at its surface(Diameter * 0.125m).")]
+		private float _magneticForce = 160000f; // SR2 Force is 100 times stronger than real life, so this must be 1600f but the difference is accounted in other places
 
         [SerializeField]
 		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Diameter", Order = 2, Tooltip = "Changes the size of the magnet.")]
@@ -26,11 +26,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             get
             {
-                return _magneticForce;
+                return _magneticForce * 0.01f;
             }
             private set
             {
-                _magneticForce = value;
+                _magneticForce = value / 0.01f;
                 base.Script.UpdateForce();
             }
         }
@@ -49,11 +49,12 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         }
 
         ISliderProperty forceSlider;
+
         public override float Mass => 8000f * Diameter * Diameter * Diameter * 0.01f;
 
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
-			d.OnValueLabelRequested(() => _magneticForce, (float x) => Units.GetForceString(x));
+			d.OnValueLabelRequested(() => _magneticForce, (float x) => Units.GetForceString(x * 0.01f));
             d.OnValueLabelRequested(() => _size, (float x) => x.ToString("F"));
             d.OnPropertyChanged(() => _magneticForce, (x, y) => {Script.UpdateForce();});
             d.OnPropertyChanged
