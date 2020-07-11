@@ -15,8 +15,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     public class ElectroMagnetData : PartModifierData<ElectroMagnetScript>
     {
         [SerializeField]
-		[DesignerPropertySlider(80000f, 240000f, 101, Label = "Magnetic Force", Order = 1, Tooltip = "Magnetic Force of the electro magnet at its surface(Diameter * 0.125m).")]
-		private float _magneticForce = 160000f; // SR2 Force is 100 times stronger than real life, so this must be 1600f but the difference is accounted in other places
+		[DesignerPropertySlider(800f, 2400f, 101, Label = "Magnetic Force", Order = 1, Tooltip = "Magnetic Force of the electro magnet at its surface(Diameter * 0.125m).")]
+		private float _magneticForce = 1600f; // SR2 Force is 100 times stronger than real life, 1600f means 160kN
 
         [SerializeField]
 		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Diameter", Order = 2, Tooltip = "Changes the size of the magnet.")]
@@ -30,11 +30,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             get
             {
-                return _magneticForce * 0.01f;
+                return _magneticForce;
             }
             private set
             {
-                _magneticForce = value / 0.01f;
+                _magneticForce = value;
                 base.Script.UpdateForce();
             }
         }
@@ -67,11 +67,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         ISliderProperty forceSlider;
 
-        public override float Mass => (8000f * Diameter * Diameter * Diameter + 25f * LatchSize * LatchSize * LatchSize) * 0.01f;
+        public override float Mass => (8000f * Diameter * Diameter * Diameter + 25f * LatchSize * LatchSize * LatchSize) * 0.01f; // SR2 mass is 100 times lighter
 
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
-			d.OnValueLabelRequested(() => _magneticForce, (float x) => Units.GetForceString(x * 0.01f));
+			d.OnValueLabelRequested(() => _magneticForce, (float x) => Units.GetForceString(x));
             d.OnValueLabelRequested(() => _size, (float x) => $"{x.ToString("F")}m");
             d.OnValueLabelRequested(() => _latchSize, (float x) => $"{LatchSize.ToString("F")}m");
 
@@ -82,8 +82,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 (x, y) =>
                 {
                     Script.UpdateSize();
-                    float minVal = 80000f * x * x;
-                    float maxVal = 240000f * x * x;
+                    float minVal = 800f * x * x;
+                    float maxVal = 2400f * x * x;
                     forceSlider.UpdateSliderSettings(minVal, maxVal, 101);
                     MagneticForce = Mathf.Clamp(MagneticForce, minVal, maxVal);
                     LatchSize = Math.Max(x, LatchSize);
@@ -92,7 +92,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             d.OnPropertyChanged(() => _latchSize, (x, y) => {Script.UpdateSize(); LatchSize = Math.Max(x, Diameter);});
             d.OnAnyPropertyChanged(() => DesignerPropertyChagned());
 
-            d.OnSliderActivated(() => _magneticForce, (ISliderProperty x) => {x.UpdateSliderSettings(80000f * _size * _size, 240000f * _size * _size, 101); forceSlider = x;});
+            d.OnSliderActivated(() => _magneticForce, (ISliderProperty x) => {x.UpdateSliderSettings(800f * _size * _size, 2400f * _size * _size, 101); forceSlider = x;});
         }
 
         private void DesignerPropertyChagned()
