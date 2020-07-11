@@ -102,20 +102,29 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 return;
             }
             float num = Vector3.Dot(-base.transform.up, _otherElectroMagnet.transform.up);
-            if (num > 0.9999f && _distance <= 0.01f)
+            if (Data.LatchSize == OtherElectroMagnet.Data.LatchSize)
             {
-                _alignmentTime += frame.DeltaTime;
-            }
-            else
-            {
-                _alignmentTime -= frame.DeltaTime; // need correction
-            }
-            if (_alignmentTime > _maxAlignmentTime)
-            {
-                CompleteDockConnection();
-                return;
+                Vector3 LatchMove = new Vector3(0f, 0f, 0.0375f);
+                if (num > 0.9999f && _distance <= 0.01f)
+                {
+                    _alignmentTime += frame.DeltaTime;
+                    latchPetal.transform.localPosition += LatchMove * frame.DeltaTime;
+                    latchPetal.transform.localPosition = Vector3.Min(latchPetal.transform.localPosition, LatchMove);
+                }
+                else
+                {
+                    _alignmentTime -= frame.DeltaTime; // need correction
+                    latchPetal.transform.localPosition -= LatchMove * frame.DeltaTime;
+                    latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);
+                }
+                if (_alignmentTime > _maxAlignmentTime)
+                {
+                    CompleteDockConnection();
+                    return;
+                }
             }
             SetMagneticJointForces(_distance);
+            Debug.Log(latchPetal.transform.localPosition);
         }
 
         void IFlightUpdate.FlightUpdate(in FlightFrameData frame)
@@ -138,14 +147,14 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             else if (IsDocking){if (Label == "Status")
                 {
                     if (_alignmentTime <= Time.deltaTime) {result = "Attracting";}
-                    else {result = $"Aligning ({Units.GetPercentageString(_alignmentTime, _maxAlignmentTime)})";}
+                    else {result = $"Locking ({Units.GetPercentageString(_alignmentTime, _maxAlignmentTime)})";}
                 }
                 else if (Label == "Distance") {result = $"{_distance.ToString("F")}m";}
                 else if (Label == "Force") {result = Units.GetForceString(_force);}
                 else {result = null;}
             }
-            else if (IsDocked) {result = "Docked";}
-            else if (_dockResetTimer > 0f) {result = "Undocking";}
+            else if (IsDocked) {result = "Locked";}
+            else if (_dockResetTimer > 0f) {result = "Unlocking";}
             return result;
         }
 
@@ -261,7 +270,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             latchBase.transform.localScale = Vector3.one * Data.LatchSize;
             latchBase.transform.localPosition = new Vector3(0f, (Data.Diameter - Data.LatchSize) * 0.125f, 0f);
             trigger.transform.localScale = trigger.transform.localScale / Data.Diameter;
-
             if (Game.InDesignerScene) {
                 Vector3 position = new Vector3(0f, 0.125f, 0f) * Data.Diameter;
                 foreach (AttachPoint attachPoint in base.PartScript.Data.AttachPoints) {
