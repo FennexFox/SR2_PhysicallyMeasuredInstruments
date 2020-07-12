@@ -46,6 +46,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private Transform latchPetal;
 
+        static Vector3 LatchMove = new Vector3(0f, 0f, 0.075f);
+
         public float DockingTime
         {
             get;
@@ -91,63 +93,48 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         void IFlightFixedUpdate.FlightFixedUpdate(in FlightFrameData frame)
         {
-            bool rotation = false;
-            if (!(_otherElectroMagnet != null))
-            {
-                return;
-            }
-            _distance = (_otherElectroMagnet.GetJointWorldPosition() - GetJointWorldPosition()).magnitude;
+            if (!IsDocking) {return;}
+            
             if (_otherElectroMagnet.PartScript.Data.IsDestroyed)
             {
                 DestroyMagneticJoint(readyForDocking: true);
                 return;
             }
-            float num = Vector3.Dot(-base.transform.up, _otherElectroMagnet.transform.up);
+
+            _distance = (_otherElectroMagnet.GetJointWorldPosition() - GetJointWorldPosition()).magnitude;
+
             if (Data.LatchSize == OtherElectroMagnet.Data.LatchSize)
             {
-                Vector3 LatchMove = new Vector3(0f, 0f, 0.075f);
+                float num = Vector3.Dot(-base.transform.up, _otherElectroMagnet.transform.up);
                 if (num > 0.9999f && _distance <= 0.01f)
                 {
                     _alignmentTime += frame.DeltaTime;
                     latchPetal.transform.localPosition += LatchMove * frame.DeltaTime;
                     latchPetal.transform.localPosition = Vector3.Min(latchPetal.transform.localPosition, LatchMove);
-
-                    Vector3 latchPetalDirection = latchPetal.transform.InverseTransformDirection(latchPetal.transform.up);
-                    Vector3 dockingPortDirection = latchPetal.transform.InverseTransformDirection(OtherElectroMagnet.latchPetal.transform.up);
-                    
-                    float rotationAngle = Quaternion.FromToRotation(dockingPortDirection, latchPetalDirection).eulerAngles.z;
-                    float rotationAngleMod = rotationAngle % 120;
-                    rotationAngle -= rotationAngleMod;
-                    _magneticJoint.targetRotation = Quaternion.Euler(rotationAngle, 0f, 0f);
-                    rotation = true;
+                    SetMagneticJointForcesAndRotation(_distance);
                 }
                 else if (_alignmentTime > 0f)
                 {
-                    _alignmentTime -= frame.DeltaTime; // need correction
+                    _alignmentTime -= frame.DeltaTime;
                     latchPetal.transform.localPosition -= LatchMove * frame.DeltaTime;
-                    latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);
-
-                    Vector3 latchPetalDirection = latchPetal.transform.InverseTransformDirection(latchPetal.transform.up);
-                    Vector3 dockingPortDirection = latchPetal.transform.InverseTransformDirection(OtherElectroMagnet.latchPetal.transform.up);
-                    
-                    float rotationAngle = Quaternion.FromToRotation(latchPetalDirection, dockingPortDirection).eulerAngles.z;
-                    float rotationAngleMod = rotationAngle % 120;
-                    if (rotationAngleMod >= 60f) {rotationAngle += rotationAngleMod;} else {rotationAngle -= rotationAngleMod;}
-                    _magneticJoint.targetRotation = Quaternion.Euler(rotationAngle, 0f, 0f);
-                    rotation = true;
+                    latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);                    
+                    SetMagneticJointForcesAndRotation(_distance);
                 }
                 else
                 {
-                    latchPetal.transform.localPosition -= LatchMove * frame.DeltaTime;
-                    latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);
+                    SetMagneticJointForces(_distance, false);
                 }
                 if (_alignmentTime > _maxAlignmentTime)
                 {
                     CompleteDockConnection();
+                    _alignmentTime = 0f;
                     return;
                 }
             }
-            SetMagneticJointForces(_distance, rotation);
+            else
+            {
+                SetMagneticJointForces(_distance, false);
+            }
         }
 
         void IFlightUpdate.FlightUpdate(in FlightFrameData frame)
@@ -160,6 +147,18 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             {
                 IsColliderReadyForDocking = true;
             }
+        }
+
+        private void SetMagneticJointForcesAndRotation(float distance)
+        {
+            Vector3 latchPetalDirection = latchPetal.transform.InverseTransformDirection(latchPetal.transform.up);
+            Vector3 dockingPortDirection = latchPetal.transform.InverseTransformDirection(OtherElectroMagnet.latchPetal.transform.up);
+            
+            float rotationAngle = Quaternion.FromToRotation(latchPetalDirection, dockingPortDirection).eulerAngles.z;
+            float rotationAngleMod = rotationAngle % 120;
+            if (rotationAngleMod >= 60f) {rotationAngle += rotationAngleMod;} else {rotationAngle -= rotationAngleMod;}
+            _magneticJoint.targetRotation = Quaternion.Euler(rotationAngle, 0f, 0f);
+            SetMagneticJointForces(distance, true);
         }
 
         public string GetText(string Label)
