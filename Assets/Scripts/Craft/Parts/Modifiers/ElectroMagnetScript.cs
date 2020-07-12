@@ -30,7 +30,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private ElectroMagnetColliderScript _electroMagnetCollider;
 
-        private float _dockResetTimer;
+        private float _unLockingTimer;
 
         private ConfigurableJoint _magneticJoint;
 
@@ -82,7 +82,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
-        public bool IsUndocking => _dockResetTimer > 0f;
+        public bool IsUnlocking => _unLockingTimer > 0f;
 
         public ElectroMagnetScript OtherElectroMagnet => _otherElectroMagnet;
 
@@ -139,14 +139,14 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         void IFlightUpdate.FlightUpdate(in FlightFrameData frame)
         {
-            if (_dockResetTimer > 0f)
+            if (_unLockingTimer > 0f)
             {
-                _dockResetTimer -= frame.DeltaTime;
+                _unLockingTimer -= frame.DeltaTime;
+                latchPetal.transform.localPosition -= LatchMove * frame.DeltaTime;
+                latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);                    
             }
-            else if (!IsDocked && !IsDocking && !IsColliderReadyForDocking)
-            {
-                IsColliderReadyForDocking = true;
-            }
+            else if (!IsDocked && !IsDocking && !IsColliderReadyForDocking) {IsColliderReadyForDocking = true;}
+            if (0f > _unLockingTimer)  {_unLockingTimer = 0f; Unlock();}
         }
 
         private void SetMagneticJointForcesAndRotation(float distance)
@@ -164,7 +164,12 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public string GetText(string Label)
         {
             string result = null;
-            if (!base.PartScript.Data.Activated) {result = "Turned Off";}
+            if (IsUnlocking) {if (Label == "Status")
+                {
+                    result = $"Unlocking ({Units.GetPercentageString(_maxAlignmentTime - _unLockingTimer, _maxAlignmentTime)})";
+                }
+                else{result = "Unlocking";}}
+            else if (!base.PartScript.Data.Activated) {result = "Turned Off";}
             else if (IsColliderReadyForDocking) {result = "Standby";}
             else if (IsDocking){if (Label == "Status")
                 {
@@ -176,14 +181,13 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 else {result = null;}
             }
             else if (IsDocked) {result = "Locked";}
-            else if (_dockResetTimer > 0f) {result = "Unlocking";}
             return result;
         }
 
         public override void OnDeactivated()
         {
             base.OnDeactivated();
-            if (IsDocked) {Undock();}
+            if (IsDocked) {Unlocking();}
             if (_otherElectroMagnet != null) {DestroyMagneticJoint(readyForDocking: false);}
         }
 
@@ -194,8 +198,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             model.Add(new TextModel("Force", () => GetText("Force")));
             IconButtonModel iconButtonModel = new IconButtonModel("Ui/Sprites/Flight/IconPartInspectorUndock", delegate
             {
-                Undock();
-            }, "Undock");
+                Unlocking();
+            }, "Unlock");
             iconButtonModel.UpdateAction = delegate(ItemModel x)
             {
                 x.Visible = IsDocked;
@@ -220,7 +224,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
-        public void Undock()
+        public void Unlocking()
         {
             if (!base.PartScript.CraftScript.IsPhysicsEnabled || DockingAttachPoint.PartConnections.Count != 1)
             {
@@ -236,13 +240,30 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 ElectroMagnetScript modifier = partConnection.GetOtherPart(base.PartScript.Data).PartScript.GetModifier<ElectroMagnetScript>();
                 if (modifier != null)
                 {
-                    modifier._dockResetTimer = 0.5f;
+                    modifier._unLockingTimer = _maxAlignmentTime;
                     modifier.IsColliderReadyForDocking = false;
                     modifier.DockingTime = 0f;
                 }
-                _dockResetTimer = 0.5f;
+                _unLockingTimer = _maxAlignmentTime;
                 IsColliderReadyForDocking = false;
                 DockingTime = 0f;
+            }
+        }
+        
+        public void Unlock()
+        {
+            if (!base.PartScript.CraftScript.IsPhysicsEnabled || DockingAttachPoint.PartConnections.Count != 1)
+            {
+                return;
+            }
+            PartConnection partConnection = DockingAttachPoint.PartConnections[0];
+            foreach (IBodyJoint joint in base.PartScript.BodyScript.Joints)
+            {
+                if (joint.PartConnection != partConnection)
+                {
+                    continue;
+                }
+                ElectroMagnetScript modifier = partConnection.GetOtherPart(base.PartScript.Data).PartScript.GetModifier<ElectroMagnetScript>();
                 Collider[] componentsInChildren = GetComponentsInChildren<Collider>();
                 foreach (Collider collider in componentsInChildren)
                 {
