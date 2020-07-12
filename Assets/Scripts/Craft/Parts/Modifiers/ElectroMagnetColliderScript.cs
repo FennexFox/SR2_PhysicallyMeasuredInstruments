@@ -1,5 +1,6 @@
 namespace Assets.Scripts.Craft.Parts.Modifiers
 {
+    using System;
     using Assets.Scripts.Craft.Parts;
     using UnityEngine;
 
@@ -24,21 +25,25 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private void OnTriggerStay(Collider other)
         {
-            PartScript componentInParent = other.GetComponentInParent<PartScript>();
-            if (other.GetInstanceID() == PreviousOne) {return;}
-            else if (componentInParent != null)
+            PartScript thisComponent = GetComponentInParent<PartScript>();
+            PartScript thatComponent = other.GetComponentInParent<PartScript>();
+            if (thatComponent != null && thisComponent.Data.Activated)
             {
-                float distance = Vector3.Distance(base.transform.position, other.transform.position);
-                if ( distance > PreviousOneDistance ) {return;}
-                else
-                { 
-                    ElectroMagnetScript modifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-                    ElectroMagnetScript modifier2 = componentInParent.GetModifier<ElectroMagnetScript>();
-                    if (modifier2 != null) {modifier.OnTouchDockingPort(modifier2);}
+                ElectroMagnetScript thatModifier = thatComponent.GetModifier<ElectroMagnetScript>();
+                if (thatModifier != null)
+                {
+                    float distance = Vector3.SqrMagnitude(gameObject.transform.position - thatModifier.gameObject.transform.position);
+                    if (distance <= PreviousOneDistance || PreviousOneDistance == 0f)
+                    {
+                        ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                        if (thatModifier != null)
+                        {
+                            thisModifier.OnTouchDockingPort(thatModifier);
+                        }
+                        PreviousOneDistance = distance;
+                    }
                 }
-                PreviousOneDistance = distance;
             }
-            PreviousOne = other.GetInstanceID();
         }
 
         /*private void OnTriggerExit(Collider other)
