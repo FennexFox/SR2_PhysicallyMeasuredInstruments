@@ -18,8 +18,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
     public class ElectroMagnetScript : PartModifierScript<ElectroMagnetData>, IDesignerStart, IFlightFixedUpdate, IGameLoopItem, IFlightUpdate
     {
-        private const float ResetTime = 10f;
-
         private float _alignmentTime;
 
         private float _maxAlignmentTime = 1F;
@@ -47,12 +45,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         private Transform latchPetal;
 
         static Vector3 LatchMove = new Vector3(0f, 0f, 0.075f);
-
-        public float DockingTime
-        {
-            get;
-            private set;
-        }
 
         public bool IsColliderReadyForDocking
         {
@@ -122,6 +114,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 }
                 else
                 {
+                    latchPetal.transform.localPosition -= LatchMove * frame.DeltaTime;
+                    latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);                    
                     SetMagneticJointForces(_distance, false);
                 }
                 if (_alignmentTime > _maxAlignmentTime)
@@ -242,11 +236,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 {
                     modifier._unLockingTimer = _maxAlignmentTime;
                     modifier.IsColliderReadyForDocking = false;
-                    modifier.DockingTime = 0f;
                 }
                 _unLockingTimer = _maxAlignmentTime;
                 IsColliderReadyForDocking = false;
-                DockingTime = 0f;
             }
         }
         
@@ -364,8 +356,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             CraftBuilder.CreateBodyJoint(CreateDockingPartConnection(_otherElectroMagnet, craftScript));
             base.PartScript.PrimaryCollider.enabled = false;
             base.PartScript.PrimaryCollider.enabled = true;
-            float dockingTime = DockingTime = Time.time;
-            _otherElectroMagnet.DockingTime = dockingTime;
             DestroyMagneticJoint(readyForDocking: false);
             Game.Instance.AudioPlayer.PlaySound(AudioLibrary.Flight.DockConnect, base.transform.position);
         }
