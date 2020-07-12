@@ -1198,7 +1198,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6138399495326248696}
   - component: {fileID: 9106304891909950293}
-  - component: {fileID: 6987988635031899178}
   - component: {fileID: 4852008362389953466}
   - component: {fileID: 3830169357513182830}
   m_Layer: 0
@@ -1231,45 +1230,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3646098881745801645}
   m_Mesh: {fileID: 7076954607464121559, guid: 214b4a25e0902ec499b632be7ff3a67a, type: 3}
---- !u!23 &6987988635031899178
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3646098881745801645}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 0099b5232051a2645b92300bb0fd0f98, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
 --- !u!64 &4852008362389953466
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2202,7 +2162,6 @@ GameObject:
   - component: {fileID: 9071635681482688764}
   - component: {fileID: 4033725735251218251}
   - component: {fileID: 2893809268369684262}
-  - component: {fileID: 4841123463705091023}
   m_Layer: 0
   m_Name: LatchPetal
   m_TagString: Untagged
@@ -2312,20 +2271,6 @@ MonoBehaviour:
   _excludeFromPartMaterials: 0
   _renderQueue: 0
   _usesEmissiveOverride: 0
---- !u!114 &4841123463705091023
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5656878615175034480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -468989955, guid: 43320b5f70320504aa4b1543184e13b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _ignoreDesignerCollisions: 0
-  _isPrimary: 0
 --- !u!1 &5895031702247814811
 GameObject:
   m_ObjectHideFlags: 0
@@ -2797,7 +2742,6 @@ GameObject:
   - component: {fileID: 7876645776972499018}
   - component: {fileID: 6576426003490320473}
   - component: {fileID: 8621646843939122089}
-  - component: {fileID: 2631693652598608480}
   - component: {fileID: 3892639153510442654}
   m_Layer: 0
   m_Name: LatchBase
@@ -2869,20 +2813,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!64 &2631693652598608480
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7572733079326196817}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 7076954607464121559, guid: 214b4a25e0902ec499b632be7ff3a67a, type: 3}
 --- !u!114 &3892639153510442654
 MonoBehaviour:
   m_ObjectHideFlags: 0

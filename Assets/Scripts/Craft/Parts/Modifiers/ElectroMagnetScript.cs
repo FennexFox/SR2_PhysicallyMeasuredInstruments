@@ -91,6 +91,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         void IFlightFixedUpdate.FlightFixedUpdate(in FlightFrameData frame)
         {
+            bool rotation = false;
             if (!(_otherElectroMagnet != null))
             {
                 return;
@@ -104,16 +105,39 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             float num = Vector3.Dot(-base.transform.up, _otherElectroMagnet.transform.up);
             if (Data.LatchSize == OtherElectroMagnet.Data.LatchSize)
             {
-                Vector3 LatchMove = new Vector3(0f, 0f, 0.0375f);
+                Vector3 LatchMove = new Vector3(0f, 0f, 0.075f);
                 if (num > 0.9999f && _distance <= 0.01f)
                 {
                     _alignmentTime += frame.DeltaTime;
                     latchPetal.transform.localPosition += LatchMove * frame.DeltaTime;
                     latchPetal.transform.localPosition = Vector3.Min(latchPetal.transform.localPosition, LatchMove);
+
+                    Vector3 latchPetalDirection = latchPetal.transform.InverseTransformDirection(latchPetal.transform.up);
+                    Vector3 dockingPortDirection = latchPetal.transform.InverseTransformDirection(OtherElectroMagnet.latchPetal.transform.up);
+                    
+                    float rotationAngle = Quaternion.FromToRotation(dockingPortDirection, latchPetalDirection).eulerAngles.z;
+                    float rotationAngleMod = rotationAngle % 120;
+                    rotationAngle -= rotationAngleMod;
+                    _magneticJoint.targetRotation = Quaternion.Euler(rotationAngle, 0f, 0f);
+                    rotation = true;
+                }
+                else if (_alignmentTime > 0f)
+                {
+                    _alignmentTime -= frame.DeltaTime; // need correction
+                    latchPetal.transform.localPosition -= LatchMove * frame.DeltaTime;
+                    latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);
+
+                    Vector3 latchPetalDirection = latchPetal.transform.InverseTransformDirection(latchPetal.transform.up);
+                    Vector3 dockingPortDirection = latchPetal.transform.InverseTransformDirection(OtherElectroMagnet.latchPetal.transform.up);
+                    
+                    float rotationAngle = Quaternion.FromToRotation(latchPetalDirection, dockingPortDirection).eulerAngles.z;
+                    float rotationAngleMod = rotationAngle % 120;
+                    if (rotationAngleMod >= 60f) {rotationAngle += rotationAngleMod;} else {rotationAngle -= rotationAngleMod;}
+                    _magneticJoint.targetRotation = Quaternion.Euler(rotationAngle, 0f, 0f);
+                    rotation = true;
                 }
                 else
                 {
-                    _alignmentTime -= frame.DeltaTime; // need correction
                     latchPetal.transform.localPosition -= LatchMove * frame.DeltaTime;
                     latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);
                 }
@@ -123,8 +147,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     return;
                 }
             }
-            SetMagneticJointForces(_distance);
-            Debug.Log(latchPetal.transform.localPosition);
+            SetMagneticJointForces(_distance, rotation);
         }
 
         void IFlightUpdate.FlightUpdate(in FlightFrameData frame)
@@ -316,15 +339,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 craftScript = craftScript2;
                 craftScript2 = craftScript3;
             }
-            if (_otherElectroMagnet.PartScript.CraftScript != base.PartScript.CraftScript)
-            {
-                StartCoroutine(OnDockingCompleteNextFrame(craftScript.CraftNode.Name, craftScript2.CraftNode.Name));
-                CraftSplitter.MergeCraftNode(craftScript2.CraftNode as CraftNode, craftScript.CraftNode as CraftNode);
-            }
-            else
-            {
-                Debug.LogFormat("Could not merge because they were the same craft node");
-            }
+            StartCoroutine(OnDockingCompleteNextFrame(craftScript.CraftNode.Name, craftScript2.CraftNode.Name));
+            CraftSplitter.MergeCraftNode(craftScript2.CraftNode as CraftNode, craftScript.CraftNode as CraftNode);
             CraftBuilder.CreateBodyJoint(CreateDockingPartConnection(_otherElectroMagnet, craftScript));
             base.PartScript.PrimaryCollider.enabled = false;
             base.PartScript.PrimaryCollider.enabled = true;
@@ -357,7 +373,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             IsColliderReadyForDocking = readyForDocking;
             _otherElectroMagnet.IsColliderReadyForDocking = readyForDocking;
-            UnityEngine.Object.DestroyImmediate(_magneticJoint);
+            SetMagneticJointForces(float.MaxValue, false);
+            UnityEngine.Object.Destroy(_magneticJoint);
             _magneticJoint = null;
             _otherElectroMagnet = null;
         }
@@ -376,7 +393,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             Vector3 jointPosition2 = otherPort.GetJointPosition();
             float distance = (jointPosition - jointPosition2).magnitude;
             _magneticJoint = CreateJoint(bodyScript, jointPosition, bodyScript.Transform.InverseTransformDirection(base.transform.up), bodyScript.Transform.InverseTransformDirection(base.transform.right), bodyScript2.RigidBody, jointPosition2);
-            SetMagneticJointForces(distance);
+            SetMagneticJointForces(distance, false);
             Quaternion targetBodyLocalRotation = Quaternion.FromToRotation(bodyScript.Transform.InverseTransformDirection(otherPort.transform.up), bodyScript.Transform.InverseTransformDirection(-base.transform.up));
             CraftBuilder.SetJointTargetRotation(_magneticJoint, targetBodyLocalRotation);
         }
@@ -397,7 +414,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             (base.PartScript.CraftScript as CraftScript).OnDockComplete(playerCraftName, otherCraftName);
         }
 
-        private void SetMagneticJointForces(float distance)
+        private void SetMagneticJointForces(float distance, bool rotation)
         {
             float distanceOffset = 0.125f * Data.Diameter;
             float distanceMultiplier = ( distance + distanceOffset ) / distanceOffset;
@@ -410,6 +427,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             _magneticJoint.yDrive = jointDrive;
             _magneticJoint.zDrive = jointDrive;
             _magneticJoint.rotationDriveMode = RotationDriveMode.XYAndZ;
+            if (rotation) {_magneticJoint.angularXDrive = jointDrive;};
         }
     }
 }
