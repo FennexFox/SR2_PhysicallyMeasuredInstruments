@@ -345,6 +345,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private void CompleteDockConnection()
         {
+            SetMagneticJointForces(float.MaxValue, false);
             ICraftScript craftScript = base.PartScript.CraftScript;
             ICraftScript craftScript2 = _otherElectroMagnet.PartScript.CraftScript;
             if (craftScript2.CraftNode.IsPlayer && !craftScript.CraftNode.IsPlayer)
