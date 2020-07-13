@@ -24,6 +24,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private float _force;
 
+        private int pole = 1;
+
+        public int Pole {get {if (PartScript.Data.Activated) {return pole;} else {return 0;}}}
+
         private float _distanceOffset => 0.125f * Data.Diameter;
 
         private ElectroMagnetColliderScript _electroMagnetCollider;
@@ -153,18 +157,19 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             if (_otherElectroMagnet != null) {DestroyMagneticJoint();}
         }
 
+        private void ChangePole() {pole *= -1;}
+
         public override void OnGenerateInspectorModel(PartInspectorModel model)
         {
             model.Add(new TextModel("Status", () => GetText("Status")));
             model.Add(new TextModel("Force", () => GetText("Force")));
-            IconButtonModel iconButtonModel = new IconButtonModel("Ui/Sprites/Flight/IconPartInspectorUndock", delegate
-            {
-                Unlocking();
-            }, "Unlock");
+            IconButtonModel changePole = new IconButtonModel("", delegate{ChangePole();}, "Change Pole");
+            IconButtonModel iconButtonModel = new IconButtonModel("Ui/Sprites/Flight/IconPartInspectorUndock", delegate{Unlocking();}, "Unlock");
             iconButtonModel.UpdateAction = delegate(ItemModel x)
             {
                 x.Visible = IsDocked;
             };
+            model.IconButtonRow.Add(changePole);
             model.IconButtonRow.Add(iconButtonModel);
         }
 
@@ -403,6 +408,14 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 if (rotationAngleMod >= 60f) {rotationAngle += rotationAngleMod;} else {rotationAngle -= rotationAngleMod;}
                 _magneticJoint.targetRotation = Quaternion.Euler(rotationAngle, 0f, 0f);
             }
+        }
+
+        public void Magnetism(ElectroMagnetScript thatMagnet, float distanceSQR)
+        {
+            float distanceMultiplier = distanceSQR  / ( _distanceOffset * _distanceOffset );
+            float magneticForce = Data.MagneticForce / distanceMultiplier;
+            Vector3 direction = (thatMagnet.transform.position - transform.position).normalized * Pole * thatMagnet.Pole;
+            thatMagnet.GetComponentInParent<Rigidbody>().AddForce(direction * magneticForce);
         }
     }
 }
