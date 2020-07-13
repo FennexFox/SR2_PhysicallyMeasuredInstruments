@@ -150,18 +150,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
-        private void SetMagneticJointForcesAndRotation(float distanceSQR)
-        {
-            Vector3 latchPetalDirection = latchPetal.transform.InverseTransformDirection(latchPetal.transform.up);
-            Vector3 dockingPortDirection = latchPetal.transform.InverseTransformDirection(OtherElectroMagnet.latchPetal.transform.up);
-            
-            float rotationAngle = Quaternion.FromToRotation(latchPetalDirection, dockingPortDirection).eulerAngles.z;
-            float rotationAngleMod = rotationAngle % 120;
-            if (rotationAngleMod >= 60f) {rotationAngle += rotationAngleMod;} else {rotationAngle -= rotationAngleMod;}
-            _magneticJoint.targetRotation = Quaternion.Euler(rotationAngle, 0f, 0f);
-            SetMagneticJointForces(distanceSQR, true);
-        }
-
         public string GetText(string Label)
         {
             string result = null;
@@ -170,6 +158,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     result = $"Unlocking ({Units.GetPercentageString(_maxAlignmentTime - _unLockingTimer, _maxAlignmentTime)})";
                 }
                 else{result = "Unlocking";}}
+            else if (IsDocked) {result = "Locked";}
             else if (!base.PartScript.Data.Activated) {result = "Turned Off";}
             else if (IsDocking){if (Label == "Status")
                 {
@@ -179,7 +168,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 else if (Label == "Force") {result = Units.GetForceString(_force);}
                 else {result = null;}
             }
-            else if (IsDocked) {result = "Locked";}
             else if (IsReadyForDocking) {result = "Standby";}
             return result;
         }
@@ -187,7 +175,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public override void OnDeactivated()
         {
             base.OnDeactivated();
-            if (IsDocked) {Unlocking();}
             if (_otherElectroMagnet != null) {DestroyMagneticJoint(readyForDocking: true);}
         }
 
