@@ -1,13 +1,12 @@
 namespace Assets.Scripts.Craft.Parts.Modifiers
 {
-    using System;
     using Assets.Scripts.Craft.Parts;
     using UnityEngine;
 
     public class ElectroMagnetColliderScript : MonoBehaviour
     {
-        private int PreviousOne;
-        private float PreviousOneDistance;
+        private ElectroMagnetScript previousOne;
+        private float previousOneDistance;
 
         private void OnTriggerEnter(Collider other)
         {
@@ -25,24 +24,18 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private void OnTriggerStay(Collider other)
         {
-            PartScript thisComponent = GetComponentInParent<PartScript>();
-            PartScript thatComponent = other.GetComponentInParent<PartScript>();
-            if (thatComponent != null && thisComponent.Data.Activated)
+            ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+            ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+            if (thatModifier != null && thisModifier.PartScript.Data.Activated)
             {
-                ElectroMagnetScript thatModifier = thatComponent.GetModifier<ElectroMagnetScript>();
-                if (thatModifier != null)
+                previousOne = thisModifier.OtherElectroMagnet;
+                if (thatModifier != null && previousOne != null && thatModifier.GetInstanceID() != previousOne.GetInstanceID())
                 {
                     float distance = Vector3.SqrMagnitude(gameObject.transform.position - thatModifier.gameObject.transform.position);
-                    if (distance <= PreviousOneDistance || PreviousOneDistance == 0f)
-                    {
-                        ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-                        if (thatModifier != null)
-                        {
-                            thisModifier.OnTouchDockingPort(thatModifier);
-                        }
-                        PreviousOneDistance = distance;
-                    }
+                    float previousOneDistance = Vector3.SqrMagnitude(gameObject.transform.position - previousOne.gameObject.transform.position);
+                    if (distance < previousOneDistance) {thisModifier.DestroyMagneticJoint(true);}
                 }
+                if (previousOne == null && thisModifier.MagneticJoint == null) {thisModifier.OnTouchDockingPort(thatModifier);}
             }
         }
 

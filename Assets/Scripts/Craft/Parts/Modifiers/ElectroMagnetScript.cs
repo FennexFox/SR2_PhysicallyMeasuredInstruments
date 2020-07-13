@@ -32,7 +32,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private ConfigurableJoint _magneticJoint;
 
-        private ElectroMagnetScript _otherElectroMagnet;
+        public ConfigurableJoint MagneticJoint => _magneticJoint;
+
+        public ElectroMagnetScript _otherElectroMagnet;
 
         public AttachPoint DockingAttachPoint => base.PartScript.Data.AttachPoints[1];
 
@@ -87,7 +89,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             if (!IsDocking) {return;}
             
-            if (_otherElectroMagnet.PartScript.Data.IsDestroyed)
+            if (_otherElectroMagnet.PartScript.Data.IsDestroyed || _otherElectroMagnet.IsReadyForDocking)
             {
                 DestroyMagneticJoint(readyForDocking: true);
                 return;
@@ -164,7 +166,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 }
                 else{result = "Unlocking";}}
             else if (!base.PartScript.Data.Activated) {result = "Turned Off";}
-            else if (IsColliderReadyForDocking) {result = "Standby";}
             else if (IsDocking){if (Label == "Status")
                 {
                     if (_alignmentTime <= Time.deltaTime) {result = "Attracting";}
@@ -175,6 +176,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 else {result = null;}
             }
             else if (IsDocked) {result = "Locked";}
+            else if (IsReadyForDocking) {result = "Standby";}
             return result;
         }
 
@@ -182,7 +184,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             base.OnDeactivated();
             if (IsDocked) {Unlocking();}
-            if (_otherElectroMagnet != null) {DestroyMagneticJoint(readyForDocking: false);}
+            if (_otherElectroMagnet != null) {DestroyMagneticJoint(readyForDocking: true);}
         }
 
         public override void OnGenerateInspectorModel(PartInspectorModel model)
@@ -212,7 +214,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void OnTouchDockingPort(ElectroMagnetScript otherDockingPort)
         {
-            if (IsReadyForDocking)
+            if (IsReadyForDocking && !otherDockingPort.IsReadyForDocking)
             {
                 Dock(otherDockingPort);
             }
@@ -235,10 +237,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 if (modifier != null)
                 {
                     modifier._unLockingTimer = _maxAlignmentTime;
-                    modifier.IsColliderReadyForDocking = false;
                 }
                 _unLockingTimer = _maxAlignmentTime;
-                IsColliderReadyForDocking = false;
             }
         }
         
@@ -255,7 +255,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 {
                     continue;
                 }
-                ElectroMagnetScript modifier = partConnection.GetOtherPart(base.PartScript.Data).PartScript.GetModifier<ElectroMagnetScript>();
                 Collider[] componentsInChildren = GetComponentsInChildren<Collider>();
                 foreach (Collider collider in componentsInChildren)
                 {
@@ -379,7 +378,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             return partConnection;
         }
 
-        private void DestroyMagneticJoint(bool readyForDocking)
+        public void DestroyMagneticJoint(bool readyForDocking)
         {
             IsColliderReadyForDocking = readyForDocking;
             _otherElectroMagnet.IsColliderReadyForDocking = readyForDocking;
@@ -394,8 +393,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             CraftScript obj = base.PartScript.CraftScript as CraftScript;
             CraftScript craftScript = otherPort.PartScript.CraftScript as CraftScript;
             _otherElectroMagnet = otherPort;
-            IsColliderReadyForDocking = false;
-            otherPort.IsColliderReadyForDocking = false;
             _alignmentTime = 0f;
             IBodyScript bodyScript = base.PartScript.BodyScript;
             IBodyScript bodyScript2 = otherPort.PartScript.BodyScript;
@@ -424,7 +421,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             (base.PartScript.CraftScript as CraftScript).OnDockComplete(playerCraftName, otherCraftName);
         }
 
-        private void SetMagneticJointForces(float distance, bool rotation)
+        public void SetMagneticJointForces(float distance, bool rotation)
         {
             float distanceOffset = 0.125f * Data.Diameter;
             float distanceMultiplier = ( distance + distanceOffset ) / distanceOffset;
