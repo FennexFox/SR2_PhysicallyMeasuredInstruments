@@ -48,33 +48,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         static Vector3 LatchMove = new Vector3(0f, 0f, 0.075f);
 
-        public bool IsColliderReadyForDocking
-        {
-            get
-            {
-                return _electroMagnetCollider.gameObject.activeSelf;
-            }
-            set
-            {
-                _electroMagnetCollider.gameObject.SetActive(value);
-            }
-        }
-
         public bool IsDocked => DockingAttachPoint.PartConnections.Count > 0;
 
         public bool IsDocking => _magneticJoint != null;
-
-        public bool IsReadyForDocking
-        {
-            get
-            {
-                if (IsColliderReadyForDocking)
-                {
-                    return base.PartScript.Data.Activated;
-                }
-                return false;
-            }
-        }
 
         public bool IsUnlocking => _unLockingTimer > 0f;
 
@@ -89,7 +65,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             if (!IsDocking) {return;}
             
-            if (_otherElectroMagnet.PartScript.Data.IsDestroyed || _otherElectroMagnet.IsReadyForDocking)
+            if (_otherElectroMagnet.PartScript.Data.IsDestroyed || _otherElectroMagnet.PartScript.Data.Activated)
             {
                 DestroyMagneticJoint(readyForDocking: true);
                 return;
@@ -132,7 +108,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             if (!IsDocking && latchPetal.transform.localPosition.z > 0f) {LatchPetalControl(false, frame);}
             if (_unLockingTimer > 0f) {_unLockingTimer -= frame.DeltaTime; LatchPetalControl(false, frame);}
-            else if (!IsDocked && !IsDocking && !IsColliderReadyForDocking) {IsColliderReadyForDocking = true;}
             if (0f > _unLockingTimer)  {_unLockingTimer = 0f; Unlock();}
         }
 
@@ -168,7 +143,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 else if (Label == "Force") {result = Units.GetForceString(_force);}
                 else {result = null;}
             }
-            else if (IsReadyForDocking) {result = "Standby";}
+            else if (base.PartScript.Data.Activated) {result = "Standby";}
             return result;
         }
 
@@ -204,7 +179,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void OnTouchDockingPort(ElectroMagnetScript otherDockingPort)
         {
-            if (IsReadyForDocking && !otherDockingPort.IsReadyForDocking)
+            if (base.PartScript.Data.Activated && !otherDockingPort.PartScript.Data.Activated)
             {
                 Dock(otherDockingPort);
             }
@@ -273,7 +248,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             trigger = Utilities.FindFirstGameObjectMyselfOrChildren("Trigger", base.PartScript.GameObject).transform;
             latchBase = Utilities.FindFirstGameObjectMyselfOrChildren("LatchBase", base.PartScript.GameObject).transform;
             latchPetal = Utilities.FindFirstGameObjectMyselfOrChildren("LatchPetal", base.PartScript.GameObject).transform;
-            IsColliderReadyForDocking = false;
+            _electroMagnetCollider.gameObject.SetActive(!Game.InDesignerScene);
             Update();
         }
 
@@ -285,7 +260,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void UpdateForce()
         {
-            trigger.transform.localScale = Vector3.one * Data.MagneticForce;
+            trigger.transform.localScale = Vector3.one * 50f * Data.MagneticForce / 1600f;
         }
 
         public void UpdateSize()
@@ -348,6 +323,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             base.PartScript.PrimaryCollider.enabled = true;
             DestroyMagneticJoint(readyForDocking: false);
             Game.Instance.AudioPlayer.PlaySound(AudioLibrary.Flight.DockConnect, base.transform.position);
+            base.PartScript.Data.Activated = false;
         }
 
         private PartConnection CreateDockingPartConnection(ElectroMagnetScript otherPort, ICraftScript craftScript)
@@ -371,8 +347,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void DestroyMagneticJoint(bool readyForDocking)
         {
-            IsColliderReadyForDocking = readyForDocking;
-            _otherElectroMagnet.IsColliderReadyForDocking = readyForDocking;
+            base.PartScript.Data.Activated = readyForDocking;
+            _otherElectroMagnet.PartScript.Data.Activated = readyForDocking;
             SetMagneticJointForces(float.MaxValue, false);
             UnityEngine.Object.Destroy(_magneticJoint);
             _magneticJoint = null;
