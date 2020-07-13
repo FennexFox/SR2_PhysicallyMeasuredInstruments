@@ -67,7 +67,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             
             if (_otherElectroMagnet.PartScript.Data.IsDestroyed || _otherElectroMagnet.PartScript.Data.Activated)
             {
-                DestroyMagneticJoint(readyForDocking: true);
+                DestroyMagneticJoint();
                 return;
             }
 
@@ -106,7 +106,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         void IFlightUpdate.FlightUpdate(in FlightFrameData frame)
         {
-            if (!IsDocking && latchPetal.transform.localPosition.z > 0f) {LatchPetalControl(false, frame);}
+            if ((!IsDocking || !IsDocked) && latchPetal.transform.localPosition.z > 0f) {LatchPetalControl(false, frame);}
             if (_unLockingTimer > 0f) {_unLockingTimer -= frame.DeltaTime; LatchPetalControl(false, frame);}
             if (0f > _unLockingTimer)  {_unLockingTimer = 0f; Unlock();}
         }
@@ -150,7 +150,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public override void OnDeactivated()
         {
             base.OnDeactivated();
-            if (_otherElectroMagnet != null) {DestroyMagneticJoint(readyForDocking: true);}
+            if (_otherElectroMagnet != null) {DestroyMagneticJoint();}
         }
 
         public override void OnGenerateInspectorModel(PartInspectorModel model)
@@ -171,18 +171,12 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public override void OnPhysicsChanged(bool enabled)
         {
             base.OnPhysicsChanged(enabled);
-            if (!enabled && _magneticJoint != null)
-            {
-                DestroyMagneticJoint(readyForDocking: true);
-            }
+            if (!enabled && _magneticJoint != null) {DestroyMagneticJoint();}
         }
 
         public void OnTouchDockingPort(ElectroMagnetScript otherDockingPort)
         {
-            if (base.PartScript.Data.Activated && !otherDockingPort.PartScript.Data.Activated)
-            {
-                Dock(otherDockingPort);
-            }
+            if (base.PartScript.Data.Activated && !otherDockingPort.PartScript.Data.Activated) {Dock(otherDockingPort);}
         }
 
         public void Unlocking()
@@ -321,7 +315,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             CraftBuilder.CreateBodyJoint(CreateDockingPartConnection(_otherElectroMagnet, craftScript));
             base.PartScript.PrimaryCollider.enabled = false;
             base.PartScript.PrimaryCollider.enabled = true;
-            DestroyMagneticJoint(readyForDocking: false);
+            DestroyMagneticJoint();
             Game.Instance.AudioPlayer.PlaySound(AudioLibrary.Flight.DockConnect, base.transform.position);
             base.PartScript.Data.Activated = false;
         }
@@ -345,11 +339,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             return partConnection;
         }
 
-        public void DestroyMagneticJoint(bool readyForDocking)
+        public void DestroyMagneticJoint()
         {
-            base.PartScript.Data.Activated = readyForDocking;
-            _otherElectroMagnet.PartScript.Data.Activated = readyForDocking;
-            SetMagneticJointForces(float.MaxValue, false);
             UnityEngine.Object.Destroy(_magneticJoint);
             _magneticJoint = null;
             _otherElectroMagnet = null;
@@ -365,9 +356,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             IBodyScript bodyScript2 = otherPort.PartScript.BodyScript;
             Vector3 jointPosition = GetJointPosition();
             Vector3 jointPosition2 = otherPort.GetJointPosition();
-            float distance = (jointPosition - jointPosition2).magnitude;
+            float distanceSQR = Vector3.SqrMagnitude(jointPosition2 - transform.position);
             _magneticJoint = CreateJoint(bodyScript, jointPosition, bodyScript.Transform.InverseTransformDirection(base.transform.up), bodyScript.Transform.InverseTransformDirection(base.transform.right), bodyScript2.RigidBody, jointPosition2);
-            SetMagneticJointForces(distance, false);
+            SetMagneticJointForces(distanceSQR, false);
             Quaternion targetBodyLocalRotation = Quaternion.FromToRotation(bodyScript.Transform.InverseTransformDirection(otherPort.transform.up), bodyScript.Transform.InverseTransformDirection(-base.transform.up));
             CraftBuilder.SetJointTargetRotation(_magneticJoint, targetBodyLocalRotation);
         }

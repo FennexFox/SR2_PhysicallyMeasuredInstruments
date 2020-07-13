@@ -16,7 +16,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 {
                     float distance = Vector3.SqrMagnitude(gameObject.transform.position - thatModifier.gameObject.transform.position);
                     float previousOneDistance = Vector3.SqrMagnitude(gameObject.transform.position - previousOne.gameObject.transform.position);
-                    if (distance < previousOneDistance) {thisModifier.DestroyMagneticJoint(true);}
+                    if (distance < previousOneDistance) {thisModifier.DestroyMagneticJoint();}
                 }
                 if (previousOne == null && thisModifier.MagneticJoint == null) {thisModifier.OnTouchDockingPort(thatModifier);}
             }
