@@ -50,6 +50,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public float Diameter {get{return _size;} private set{_size = value; base.Script.UpdateSize();}}
 
+        public float Volume => 0.19635f * Diameter * Diameter * Diameter;
+
         public float MaxAmpere => _maxAmpere;
 
         public float TurnPerLength => _turnPerLength;

@@ -23,13 +23,13 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private float _maxAlignmentTime = 1F;
 
-        private int pole = 1;
+        private int pole = 1; // This means MagneticEffectPoint is N pole
 
-        public int Pole {get {if (PartScript.Data.Activated) {return pole;} else {return 0;}}}
+        public int Pole => pole;
 
         private float _distanceOffset => 0.125f * Data.Diameter;
 
-        private float magneticConstant = 0.0000001f;
+        private double vacuumPermeability = 0.0000004f * Math.PI;
 
         private ElectroMagnetColliderScript _electroMagnetCollider;
 
@@ -43,7 +43,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private float _force;
 
-        public AttachPoint DockingAttachPoint => base.PartScript.Data.AttachPoints[1];
+        public AttachPoint MagneticEffectPoint => base.PartScript.Data.AttachPoints[1];
+
+        public AttachPoint BodyAttachPoint => base.PartScript.Data.AttachPoints[0];
 
         private Transform trigger;
 
@@ -59,6 +61,12 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public float MagneticPoleStrength => Data.MaxMagneticPoleStrength * _input.Value;
 
+        public Vector3 DirectionFromStoN => Vector3.Normalize(MagneticEffectPoint.Position - BodyAttachPoint.Position) * Pole;
+
+        public Vector3 MagneticDipoleMoment => MagneticPoleStrength * Data.Diameter * 0.25f * DirectionFromStoN;
+
+        public Vector3 Magnetization => MagneticDipoleMoment / Data.Volume;
+
         private float _inputAmpere => _input.Value * Data.MaxAmpere;
         
         public float PowerConsumption => _inputAmpere * Data.Volt;
@@ -67,7 +75,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         static Vector3 LatchMove = new Vector3(0f, 0f, 0.075f);
 
-        public bool IsDocked => DockingAttachPoint.PartConnections.Count > 0;
+        public bool IsDocked => MagneticEffectPoint.PartConnections.Count > 0;
 
         public bool IsDocking => _magneticJoint != null;
 
@@ -82,7 +90,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         void IFlightStart.FlightStart(in FlightFrameData frame)
         {
-            _input = GetInputController();
+            _input = GetInputController("PowerInput");
         }
 
         void IFlightFixedUpdate.FlightFixedUpdate(in FlightFrameData frame)
@@ -95,7 +103,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 return;
             }
 
-            float distanceSQR = Vector3.SqrMagnitude(_otherElectroMagnet.GetJointWorldPosition() - transform.position);
+            float distanceSQR = Vector3.SqrMagnitude(_otherElectroMagnet.GetJointWorldPosition() - GetJointWorldPosition());
             bool rotation = false;
 
             if (Data.LatchSize == OtherElectroMagnet.Data.LatchSize)
@@ -107,9 +115,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     return;
                 }
 
-                float distanceLimit = (_distanceOffset + 0.01f) * (_distanceOffset + 0.01f);
+                float distanceSQRLimit = 0.0001f;
                 float num = Vector3.Dot(-base.transform.up, _otherElectroMagnet.transform.up);
-                if (num > 0.9999f && distanceSQR < distanceLimit)
+                if (num > 0.9999f && distanceSQR < distanceSQRLimit)
                 {
                     _alignmentTime += frame.DeltaTime;
                     LatchPetalControl(true, frame);
@@ -206,11 +214,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void Unlocking()
         {
-            if (!base.PartScript.CraftScript.IsPhysicsEnabled || DockingAttachPoint.PartConnections.Count != 1)
+            if (!base.PartScript.CraftScript.IsPhysicsEnabled || MagneticEffectPoint.PartConnections.Count != 1)
             {
                 return;
             }
-            PartConnection partConnection = DockingAttachPoint.PartConnections[0];
+            PartConnection partConnection = MagneticEffectPoint.PartConnections[0];
             foreach (IBodyJoint joint in base.PartScript.BodyScript.Joints)
             {
                 if (joint.PartConnection != partConnection)
@@ -228,11 +236,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         
         public void Unlock()
         {
-            if (!base.PartScript.CraftScript.IsPhysicsEnabled || DockingAttachPoint.PartConnections.Count != 1)
+            if (!base.PartScript.CraftScript.IsPhysicsEnabled || MagneticEffectPoint.PartConnections.Count != 1)
             {
                 return;
             }
-            PartConnection partConnection = DockingAttachPoint.PartConnections[0];
+            PartConnection partConnection = MagneticEffectPoint.PartConnections[0];
             foreach (IBodyJoint joint in base.PartScript.BodyScript.Joints)
             {
                 if (joint.PartConnection != partConnection)
@@ -350,15 +358,15 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         private PartConnection CreateDockingPartConnection(ElectroMagnetScript otherPort, ICraftScript craftScript)
         {
             PartConnection partConnection = new PartConnection(base.PartScript.Data, otherPort.PartScript.Data);
-            partConnection.AddAttachment(DockingAttachPoint, otherPort.DockingAttachPoint);
+            partConnection.AddAttachment(MagneticEffectPoint, otherPort.MagneticEffectPoint);
             craftScript.Data.Assembly.AddPartConnection(partConnection);
             IBodyScript bodyScript = base.PartScript.BodyScript;
             IBodyScript bodyScript2 = otherPort.PartScript.BodyScript;
             partConnection.BodyJointData = new BodyJointData(partConnection);
             partConnection.BodyJointData.Axis = Vector3.right;
             partConnection.BodyJointData.SecondaryAxis = Vector3.up;
-            partConnection.BodyJointData.Position = bodyScript.Transform.InverseTransformPoint(base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter));
-            partConnection.BodyJointData.ConnectedPosition = bodyScript2.Transform.InverseTransformPoint(otherPort.PartScript.Transform.TransformPoint(otherPort.DockingAttachPoint.Position * otherPort.Data.Diameter));
+            partConnection.BodyJointData.Position = bodyScript.Transform.InverseTransformPoint(base.PartScript.Transform.TransformPoint(MagneticEffectPoint.Position * Data.Diameter));
+            partConnection.BodyJointData.ConnectedPosition = bodyScript2.Transform.InverseTransformPoint(otherPort.PartScript.Transform.TransformPoint(otherPort.MagneticEffectPoint.Position * otherPort.Data.Diameter));
             partConnection.BodyJointData.BreakTorque = 100000f;
             partConnection.BodyJointData.JointType = BodyJointData.BodyJointType.Docking;
             partConnection.BodyJointData.Body = bodyScript.Data;
@@ -397,7 +405,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private Vector3 GetJointWorldPosition()
         {
-            return base.PartScript.Transform.TransformPoint(DockingAttachPoint.Position * Data.Diameter);
+            return base.PartScript.Transform.TransformPoint(MagneticEffectPoint.Position * Data.Diameter);
         }
 
         private IEnumerator OnDockingCompleteNextFrame(string playerCraftName, string otherCraftName)
@@ -406,11 +414,17 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             (base.PartScript.CraftScript as CraftScript).OnDockComplete(playerCraftName, otherCraftName);
         }
 
+        private float MagneticForce(float distanceSQR, ElectroMagnetScript ThatMagnet)
+        {
+            float distanceAdjusted = Math.Max(distanceSQR, 0.0001f);
+            double force = vacuumPermeability * MagneticPoleStrength * ThatMagnet.MagneticPoleStrength / (distanceAdjusted * 4 * Math.PI);
+            return Convert.ToSingle(force);
+        }
+
         public void SetMagneticJointForces(float distanceSQR, bool rotation)
         {
-            float distanceMultiplier = distanceSQR  / ( _distanceOffset * _distanceOffset );
             JointDrive jointDrive = default(JointDrive);
-            jointDrive.maximumForce = Math.Min(magneticConstant * MagneticPoleStrength * OtherElectroMagnet.MagneticPoleStrength / distanceMultiplier, float.MaxValue);
+            jointDrive.maximumForce = Math.Min(MagneticForce(distanceSQR, OtherElectroMagnet), float.MaxValue);
             _force = jointDrive.maximumForce;
             jointDrive.positionSpring = float.MaxValue;
             jointDrive.positionDamper = 0f;
@@ -433,10 +447,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
-        public void Magnetism(ElectroMagnetScript thatMagnet, float distanceSQR)
+        public void Magnetism(float distanceSQR, ElectroMagnetScript thatMagnet)
         {
-            float distanceMultiplier = distanceSQR  / ( _distanceOffset * _distanceOffset );
-            float magneticForce = Math.Min(magneticConstant * MagneticPoleStrength * thatMagnet.MagneticPoleStrength / distanceMultiplier, float.MaxValue);
+            float magneticForce = Math.Min(MagneticForce(distanceSQR, thatMagnet), float.MaxValue);
             Vector3 direction = (thatMagnet.transform.position - transform.position).normalized * Pole * thatMagnet.Pole;
             thatMagnet.GetComponentInParent<Rigidbody>().AddForce(direction * magneticForce);
         }

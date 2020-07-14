@@ -12,10 +12,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             if (thatModifier != null && thisModifier.PartScript.Data.Activated) // select the closest one for latch lock
             {
                 ElectroMagnetScript previousOne = thisModifier.OtherElectroMagnet;
-                float distanceSQR = Vector3.SqrMagnitude(gameObject.transform.position - thatModifier.gameObject.transform.position);
+                float distanceSQR = Vector3.SqrMagnitude(thisModifier.MagneticEffectPoint.Position - thatModifier.MagneticEffectPoint.Position);
                 if (previousOne != null && thatModifier.GetInstanceID() != previousOne.GetInstanceID())
                 {
-                    float previousOneDistanceSQR = Vector3.SqrMagnitude(gameObject.transform.position - previousOne.gameObject.transform.position);
+                    float previousOneDistanceSQR = Vector3.SqrMagnitude(thisModifier.MagneticEffectPoint.Position - previousOne.MagneticEffectPoint.Position);
                     if (distanceSQR < previousOneDistanceSQR) {thisModifier.DestroyMagneticJoint();}
                 }
                 
@@ -25,7 +25,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 }
                 else if (previousOne != thatModifier)// N-body Magnetism for the others
                 {
-                    thisModifier.Magnetism(thatModifier, distanceSQR);
+                    thisModifier.Magnetism(distanceSQR, thatModifier);
                 }
             }
         }
