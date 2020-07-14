@@ -30,6 +30,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private float _distanceOffset => 0.125f * Data.Diameter;
 
+        private float magneticConstant = 0.0000001f;
+
         private ElectroMagnetColliderScript _electroMagnetCollider;
 
         private float _unLockingTimer;
@@ -76,7 +78,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
 
             float distanceSQR = Vector3.SqrMagnitude(_otherElectroMagnet.GetJointWorldPosition() - transform.position);
-            float distanceLimit = (_distanceOffset + 0.005f) * (_distanceOffset + 0.005f);
             bool rotation = false;
 
             if (Data.LatchSize == OtherElectroMagnet.Data.LatchSize)
@@ -88,6 +89,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     return;
                 }
 
+                float distanceLimit = (_distanceOffset + 0.01f) * (_distanceOffset + 0.01f);
                 float num = Vector3.Dot(-base.transform.up, _otherElectroMagnet.transform.up);
                 if (num > 0.9999f && distanceSQR < distanceLimit)
                 {
@@ -110,7 +112,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         void IFlightUpdate.FlightUpdate(in FlightFrameData frame)
         {
-            if ((!IsDocking || !IsDocked) && latchPetal.transform.localPosition.z > 0f) {LatchPetalControl(false, frame);}
+            if (!IsDocking && !IsDocked && latchPetal.transform.localPosition.z > 0f) {LatchPetalControl(false, frame);}
             if (_unLockingTimer > 0f) {_unLockingTimer -= frame.DeltaTime; LatchPetalControl(false, frame);}
             if (0f > _unLockingTimer)  {_unLockingTimer = 0f; Unlock();}
         }
@@ -235,6 +237,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 force *= num;
                 base.PartScript.BodyScript.RigidBody.AddForceAtPosition(force, base.PartScript.Transform.position, ForceMode.Impulse);
                 Game.Instance.AudioPlayer.PlaySound(AudioLibrary.Flight.DockDisconnect, base.transform.position);
+                latchPetal.gameObject.SetActive(true);
                 break;
             }
         }
@@ -259,7 +262,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void UpdateForce()
         {
-            trigger.transform.localScale = Vector3.one * 50f * Data.MagneticForce / 1600f;
+            trigger.transform.localScale = Vector3.one * 50f * Data.MagneticPoleStrength / 1600f;
         }
 
         public void UpdateSize()
@@ -322,6 +325,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             base.PartScript.PrimaryCollider.enabled = true;
             DestroyMagneticJoint();
             Game.Instance.AudioPlayer.PlaySound(AudioLibrary.Flight.DockConnect, base.transform.position);
+            latchPetal.gameObject.SetActive(false);
             base.PartScript.Data.Activated = false;
         }
 
@@ -388,7 +392,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             float distanceMultiplier = distanceSQR  / ( _distanceOffset * _distanceOffset );
             JointDrive jointDrive = default(JointDrive);
-            jointDrive.maximumForce = Math.Min( Data.MagneticForce / distanceMultiplier, float.MaxValue);
+            jointDrive.maximumForce = Math.Min( Data.MagneticPoleStrength / distanceMultiplier, float.MaxValue);
             _force = jointDrive.maximumForce;
             jointDrive.positionSpring = float.MaxValue;
             jointDrive.positionDamper = 0f;
@@ -399,6 +403,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
             if (rotation)
             {
+                jointDrive.positionDamper = jointDrive.maximumForce;
                 _magneticJoint.angularXDrive = jointDrive;
                 Vector3 latchPetalDirection = latchPetal.transform.InverseTransformDirection(latchPetal.transform.up);
                 Vector3 dockingPortDirection = latchPetal.transform.InverseTransformDirection(OtherElectroMagnet.latchPetal.transform.up);
@@ -413,7 +418,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public void Magnetism(ElectroMagnetScript thatMagnet, float distanceSQR)
         {
             float distanceMultiplier = distanceSQR  / ( _distanceOffset * _distanceOffset );
-            float magneticForce = Data.MagneticForce / distanceMultiplier;
+            float magneticForce = magneticConstant * Data.MagneticPoleStrength * thatMagnet.Data.MagneticPoleStrength / distanceMultiplier;
             Vector3 direction = (thatMagnet.transform.position - transform.position).normalized * Pole * thatMagnet.Pole;
             thatMagnet.GetComponentInParent<Rigidbody>().AddForce(direction * magneticForce);
         }

@@ -16,7 +16,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     {
         [SerializeField]
 		[DesignerPropertySlider(800f, 2400f, 101, Label = "Magnetic Force", Order = 1, Tooltip = "Magnetic Force of the electro magnet at its surface(Diameter * 0.125m).")]
-		private float _magneticForce = 1600f; // SR2 Force is 100 times stronger than real life, 1600f means 160kN
+		private float _magneticPoleStrength = 1600f; // SR2 Force is 100 times stronger than real life, 1600f means 160kN
 
         [SerializeField]
 		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Diameter", Order = 2, Tooltip = "Changes the size of the magnet.")]
@@ -26,44 +26,17 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Latch Diameter", Order = 3, Tooltip = "Changes the size of the locking mehchanism.")]
 		private float _latchSize = 1f;
 
-        public float MagneticForce
-        {
-            get
-            {
-                return _magneticForce;
-            }
-            private set
-            {
-                _magneticForce = value;
-                base.Script.UpdateForce();
-            }
-        }
+/*
+        private float _magneticPoleStrength = Area * Max Ampare * Turn per Length;
+        private float _area = Math.Pi * Diameter / 4f;
+        private float _turnPerLength;
+*/
 
-        public float Diameter
-        {
-            get
-            {
-                return _size;
-            }
-            private set
-            {
-                _size = value;
-                base.Script.UpdateSize();
-            }
-        }
+        public float MagneticPoleStrength => _magneticPoleStrength;
 
-        public float LatchSize
-        {
-            get
-            {
-                return _latchSize;
-            }
-            private set
-            {
-                _latchSize = value;
-                base.Script.UpdateSize();
-            }
-        }
+        public float Diameter {get{return _size;} private set{_size = value; base.Script.UpdateSize();}}
+
+        public float LatchSize {get{return _latchSize;} private set{_latchSize = value; base.Script.UpdateSize();}}
 
         ISliderProperty forceSlider;
 
@@ -71,11 +44,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
-			d.OnValueLabelRequested(() => _magneticForce, (float x) => Units.GetForceString(x));
+			d.OnValueLabelRequested(() => _magneticPoleStrength, (float x) => Units.GetForceString(x));
             d.OnValueLabelRequested(() => _size, (float x) => $"{x.ToString("F")}m");
             d.OnValueLabelRequested(() => _latchSize, (float x) => $"{LatchSize.ToString("F")}m");
 
-            d.OnPropertyChanged(() => _magneticForce, (x, y) => {Script.UpdateForce();});
+            d.OnPropertyChanged(() => _magneticPoleStrength, (x, y) => {Script.UpdateForce();});
             d.OnPropertyChanged
             (
                 () => _size,
@@ -85,14 +58,14 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     float minVal = 800f * x * x;
                     float maxVal = 2400f * x * x;
                     forceSlider.UpdateSliderSettings(minVal, maxVal, 101);
-                    MagneticForce = Mathf.Clamp(MagneticForce, minVal, maxVal);
+                    //MagneticPoleStrength = Mathf.Clamp(MagneticPoleStrength, minVal, maxVal);
                     LatchSize = Math.Max(x, LatchSize);
                 }
             );
             d.OnPropertyChanged(() => _latchSize, (x, y) => {Script.UpdateSize(); LatchSize = Math.Max(x, Diameter);});
             d.OnAnyPropertyChanged(() => DesignerPropertyChagned());
 
-            d.OnSliderActivated(() => _magneticForce, (ISliderProperty x) => {x.UpdateSliderSettings(800f * _size * _size, 2400f * _size * _size, 101); forceSlider = x;});
+            d.OnSliderActivated(() => _magneticPoleStrength, (ISliderProperty x) => {x.UpdateSliderSettings(800f * _size * _size, 2400f * _size * _size, 101); forceSlider = x;});
         }
 
         private void DesignerPropertyChagned()

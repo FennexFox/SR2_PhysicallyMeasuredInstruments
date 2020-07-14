@@ -156,6 +156,6 @@ MonoBehaviour:
     _inspectorEnabled: 1
     _partPropertiesEnabled: 1
     _staticPriceAndMass: 0
-    _magneticForce: 1600
+    _magneticPoleStrength: 1600
     _size: 1
     _latchSize: 1
