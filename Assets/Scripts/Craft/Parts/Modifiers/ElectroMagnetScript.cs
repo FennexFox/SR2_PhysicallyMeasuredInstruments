@@ -7,6 +7,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     using ModApi.Audio;
     using ModApi.Craft;
     using ModApi.Craft.Parts;
+    using ModApi.Craft.Parts.Input;
     using ModApi.Design;
     using ModApi.GameLoop;
     using ModApi.GameLoop.Interfaces;
@@ -16,13 +17,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     using System.Collections;
     using UnityEngine;
 
-    public class ElectroMagnetScript : PartModifierScript<ElectroMagnetData>, IDesignerStart, IFlightFixedUpdate, IGameLoopItem, IFlightUpdate
+    public class ElectroMagnetScript : PartModifierScript<ElectroMagnetData>, IFlightStart, IDesignerStart, IFlightFixedUpdate, IGameLoopItem, IFlightUpdate
     {
         private float _alignmentTime;
 
         private float _maxAlignmentTime = 1F;
-
-        private float _force;
 
         private int pole = 1;
 
@@ -42,6 +41,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public ElectroMagnetScript _otherElectroMagnet;
 
+        private float _force;
+
         public AttachPoint DockingAttachPoint => base.PartScript.Data.AttachPoints[1];
 
         private Transform trigger;
@@ -51,6 +52,18 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         private Transform latchBase;
 
         private Transform latchPetal;
+
+        private IFuelSource _battery;
+
+        private IInputController _input;
+
+        public float MagneticPoleStrength => Data.MaxMagneticPoleStrength * _input.Value;
+
+        private float _inputAmpere => _input.Value * Data.MaxAmpere;
+        
+        public float PowerConsumption => _inputAmpere * Data.Volt;
+
+        public bool HasPower;
 
         static Vector3 LatchMove = new Vector3(0f, 0f, 0.075f);
 
@@ -66,6 +79,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 		{
 			Update();
 		}
+
+        void IFlightStart.FlightStart(in FlightFrameData frame)
+        {
+            _input = GetInputController();
+        }
 
         void IFlightFixedUpdate.FlightFixedUpdate(in FlightFrameData frame)
         {
@@ -262,7 +280,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void UpdateForce()
         {
-            trigger.transform.localScale = Vector3.one * 50f * Data.MagneticPoleStrength / 1600f;
+            trigger.transform.localScale = Vector3.one * 50f * Data.MaxMagneticPoleStrength / 1600f;
         }
 
         public void UpdateSize()
@@ -392,7 +410,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             float distanceMultiplier = distanceSQR  / ( _distanceOffset * _distanceOffset );
             JointDrive jointDrive = default(JointDrive);
-            jointDrive.maximumForce = Math.Min( Data.MagneticPoleStrength / distanceMultiplier, float.MaxValue);
+            jointDrive.maximumForce = Math.Min(magneticConstant * MagneticPoleStrength * OtherElectroMagnet.MagneticPoleStrength / distanceMultiplier, float.MaxValue);
             _force = jointDrive.maximumForce;
             jointDrive.positionSpring = float.MaxValue;
             jointDrive.positionDamper = 0f;
@@ -403,7 +421,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
             if (rotation)
             {
-                jointDrive.positionDamper = jointDrive.maximumForce;
+                jointDrive.positionDamper = jointDrive.maximumForce; // test float.MaxValue
                 _magneticJoint.angularXDrive = jointDrive;
                 Vector3 latchPetalDirection = latchPetal.transform.InverseTransformDirection(latchPetal.transform.up);
                 Vector3 dockingPortDirection = latchPetal.transform.InverseTransformDirection(OtherElectroMagnet.latchPetal.transform.up);
@@ -418,7 +436,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public void Magnetism(ElectroMagnetScript thatMagnet, float distanceSQR)
         {
             float distanceMultiplier = distanceSQR  / ( _distanceOffset * _distanceOffset );
-            float magneticForce = magneticConstant * Data.MagneticPoleStrength * thatMagnet.Data.MagneticPoleStrength / distanceMultiplier;
+            float magneticForce = Math.Min(magneticConstant * MagneticPoleStrength * thatMagnet.MagneticPoleStrength / distanceMultiplier, float.MaxValue);
             Vector3 direction = (thatMagnet.transform.position - transform.position).normalized * Pole * thatMagnet.Pole;
             thatMagnet.GetComponentInParent<Rigidbody>().AddForce(direction * magneticForce);
         }
