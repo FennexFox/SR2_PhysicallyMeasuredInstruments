@@ -5,28 +5,36 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
     public class ElectroMagnetColliderScript : MonoBehaviour
     {
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.GetComponentInParent<PartScript>() != null)
+            {
+                ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                if (thatModifier != null) {thatModifier.NearbyMagnets.Add(thisModifier.GetInstanceID(), thisModifier);}
+            }
+        }
+
         private void OnTriggerStay(Collider other)
         {
-            ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-            ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-            if (thatModifier != null && thisModifier.PartScript.Data.Activated) // select the closest one for latch lock
+            if (other.GetComponentInParent<PartScript>() != null)
             {
-                ElectroMagnetScript previousOne = thisModifier.OtherElectroMagnet;
-                float distanceSQR = Vector3.SqrMagnitude(thisModifier.MagneticEffectPoint.Position - thatModifier.MagneticEffectPoint.Position);
-                if (previousOne != null && thatModifier.GetInstanceID() != previousOne.GetInstanceID())
+                ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                if (thatModifier != null && !thatModifier.NearbyMagnets.ContainsKey(thisModifier.GetInstanceID()))
                 {
-                    float previousOneDistanceSQR = Vector3.SqrMagnitude(thisModifier.MagneticEffectPoint.Position - previousOne.MagneticEffectPoint.Position);
-                    if (distanceSQR < previousOneDistanceSQR) {thisModifier.DestroyMagneticJoint();}
+                    thatModifier.NearbyMagnets.Add(thisModifier.GetInstanceID(), thisModifier);
                 }
-                
-                if (previousOne == null && thisModifier.MagneticJoint == null)
-                {
-                    thisModifier.OnTouchDockingPort(thatModifier);
-                }
-                else if (previousOne != thatModifier)// N-body Magnetism for the others
-                {
-                    thisModifier.Magnetism(distanceSQR, thatModifier);
-                }
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.GetComponentInParent<PartScript>() != null)
+            {
+                ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                if (thatModifier != null) {thatModifier.NearbyMagnets.Remove(thisModifier.GetInstanceID());}
             }
         }
     }

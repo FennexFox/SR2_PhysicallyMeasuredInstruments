@@ -46,11 +46,13 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 */
         public float Volt;
 
-        public float MaxMagneticPoleStrength => Convert.ToSingle(_area) * MaxAmpere * TurnPerLength;
+        public float MaxMagneticPoleStrength => 1265f;// Convert.ToSingle(_area) * MaxAmpere * TurnPerLength;
 
         public float Diameter {get{return _size;} private set{_size = value; base.Script.UpdateSize();}}
 
-        public float Volume => 0.19635f * Diameter * Diameter * Diameter;
+        public double Area => 0.25f * Math.PI * Diameter * Diameter;
+        
+        public double Volume => Area * 0.25f * Diameter;
 
         public float MaxAmpere => _maxAmpere;
 
