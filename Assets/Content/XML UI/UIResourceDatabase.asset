@@ -18,5 +18,7 @@ MonoBehaviour:
   - Content/XML UI
   AutomaticallyRemoveEntries: 1
   entries:
+  - path: International Docking System Standard/Sprites/PoleSelector
+    resource: {fileID: 21300000, guid: a03aa82392c70694db055db512bd18f7, type: 3}
   - path: International Docking System Standard/UIResourceDatabase
     resource: {fileID: 11400000}
