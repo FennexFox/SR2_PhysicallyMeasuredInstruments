@@ -28,8 +28,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 		private float _maxAmpere = 12f;
 
         [SerializeField]
-		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Turn Per Length", Order = 2, Tooltip = "Changes the number of turns of the coil per length.")]
-		private float _turnPerLength = 1f;
+		[DesignerPropertySlider(500f, 2000f, 4, Label = "Turn Per Length", Order = 2, Tooltip = "Changes the number of turns of the coil per length.")]
+		private float _turnPerLength = 500f;
 
         [SerializeField]
 		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Latch Diameter", Order = 5, Tooltip = "Changes the size of the locking mehchanism.")]
@@ -46,7 +46,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 */
         public float Volt;
 
-        public float MaxMagneticPoleStrength => 1265f;// Convert.ToSingle(_area) * MaxAmpere * TurnPerLength;
+        public float MaxMagneticPoleStrength => 1265f;// Convert.ToSingle(_area) * MaxAmpere * TurnPerLength * 0.01f; // SR2 Forces are 100 times stronger
 
         public float Diameter {get{return _size;} private set{_size = value; base.Script.UpdateSize();}}
 
