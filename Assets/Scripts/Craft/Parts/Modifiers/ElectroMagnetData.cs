@@ -25,7 +25,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         [SerializeField]
 		[DesignerPropertySlider(12f, 240f, 20, Label = "Max Ampere", Order = 1, Tooltip = "Changes the max electric current you can put into the magnet.")]
-		private float _maxAmpere = 12f;
+		private float _maxAmpere = 322f; // 12f;
 
         [SerializeField]
 		[DesignerPropertySlider(500f, 2000f, 4, Label = "Turn Per Length", Order = 2, Tooltip = "Changes the number of turns of the coil per length.")]
@@ -44,7 +44,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private float _coilCrossSection = 0.0000002f; // from "shorturl.at/vxV18"
 */
-        public float Volt;
+        public float Volt = 120f; // from Orion Spacecraft; gonna be configurable soon
 
         public float MaxMagneticPoleStrength => 1265f;// Convert.ToSingle(_area) * MaxAmpere * TurnPerLength * 0.01f; // SR2 Forces are 100 times stronger
 

@@ -106,8 +106,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         void IFlightFixedUpdate.FlightFixedUpdate(in FlightFrameData frame)
         {
             UpdateForce();
+            
+            if (HasPower) {_battery.RemoveFuel(PowerConsumption * frame.DeltaTime);}
+            else {base.PartScript.Data.Activated = false;}
 
-            Debug.Log($"CraftID: {this.GetComponentInParent<CraftScript>().Data.Name} PartID: {this.GetComponentInParent<PartScript>().Data.Id} Counts: {NearbyMagnets.Count} Input: {_input.Value}");
             if (NearbyMagnets.Count > 0)
             {
                 _magneticForceAtCurrentPosition = Vector3.zero;
@@ -256,6 +258,19 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             base.OnPhysicsChanged(enabled);
             if (!enabled && _magneticJoint != null) {DestroyMagneticJoint();}
         }
+
+        public override void OnCraftLoaded(ICraftScript craftScript, bool movedToNewCraft)
+        {
+            base.OnCraftLoaded(craftScript, movedToNewCraft);
+            OnCraftStructureChanged(craftScript);
+        }
+
+        public override void OnCraftStructureChanged(ICraftScript craftScript)
+        {
+            base.OnCraftStructureChanged(craftScript);
+            _battery = base.PartScript.BatteryFuelSource;
+        }
+
 
         public void Unlocking()
         {
