@@ -2515,6 +2515,16 @@ PrefabInstance:
       propertyPath: Data._magneticForce
       value: 1600
       objectReference: {fileID: 0}
+    - target: {fileID: 5502087757198830847, guid: e82acf59411d37b46981882b1a96d596,
+        type: 3}
+      propertyPath: Data._maxAmpere
+      value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: 5502087757198830847, guid: e82acf59411d37b46981882b1a96d596,
+        type: 3}
+      propertyPath: Data._turnPerLength
+      value: 1000
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3683071059002307713, guid: e82acf59411d37b46981882b1a96d596, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: e82acf59411d37b46981882b1a96d596, type: 3}
