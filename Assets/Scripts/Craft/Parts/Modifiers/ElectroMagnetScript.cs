@@ -35,7 +35,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public int Pole => pole;
 
-        public string PoleString {get{if (pole == 1) {return "Effective Pole: N";} else if (pole == -1) {return "Effective Pole: S";}else {return "what";}}}
+        public string PoleString {get{if (pole == 1) {return "N";} else if (pole == -1) {return "S";}else {return "what";}}}
 
         private double vacuumPermeability = 0.0000004f * Math.PI;
 
@@ -132,7 +132,13 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     _magneticForceAtCurrentPosition += magneticForce;
                     NearbyForces.Add(items.Key, magneticForce);
 
-                    if (Data.LatchSize == ThatMagnet.Data.LatchSize && Pole != ThatMagnet.Pole && !ThatMagnet.IsDocked) {NearbyLatchesKeys.Add(distanceSQR, items.Key);}
+                    if (Data.DrawLatch && ThatMagnet.Data.DrawLatch)
+                    {
+                        if (Data.LatchSize == ThatMagnet.Data.LatchSize && Pole != ThatMagnet.Pole && !ThatMagnet.IsDocked)
+                        {
+                            NearbyLatchesKeys.Add(distanceSQR, items.Key);
+                        }
+                    }
                 }
                 
                 if (NearbyLatchesKeys.Count > 0 && !IsDocked)
@@ -218,7 +224,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             string result = null;
             switch (Label)
             {
-                case "Input Volt":
+                case "Volt":
                     result = $"{Data.Volt} V" ; break;
                 case "Ampere":
                     result = $"{_inputAmpere.ToString("F")} A" ; break;
@@ -262,12 +268,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public override void OnGenerateInspectorModel(PartInspectorModel model)
         {
-            var poleChanger = new SpinnerModel(() => PoleString);
-            poleChanger.PrevClicked = s => ChangePole();
-            poleChanger.NextClicked = s => ChangePole();
+            var poleChanger = new LabelButtonModel("Effective Pole", b => ChangePole());
+            poleChanger.ButtonLabel = PoleString;
 
             var electroMagnetInfo = new GroupModel("Electroagnet Info");
-            electroMagnetInfo.Add(new TextModel("Volt", () => GetText1("Volt")));
+            electroMagnetInfo.Add(new TextModel("Input Volt", () => GetText1("Volt")));
             electroMagnetInfo.Add(new TextModel("Ampere", () => GetText1("Ampere")));
             electroMagnetInfo.Add(new TextModel("Watt", () => GetText1("Watt")));
             electroMagnetInfo.Add(new TextModel("Pole Strength", () => GetText1("PoleStrength")));
@@ -394,8 +399,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void SetLatchMode()
         {
-            if (Data.DrawLatch == ElectroMagnetData.HasLatch.Disabled) {latch.SetActive(false);}
-            else {latch.SetActive(true);}
+            if (Data.DrawLatch) {latch.SetActive(true);} else {latch.SetActive(false);}
         }
 
         public override void OnSymmetry(SymmetryMode mode, IPartScript originalPart, bool created)
