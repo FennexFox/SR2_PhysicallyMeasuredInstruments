@@ -158,7 +158,7 @@ MonoBehaviour:
     _partPropertiesEnabled: 1
     _staticPriceAndMass: 0
     _size: 1
-    _maxAmpere: 160
+    _maxAmpere: 120
     _turnPerLength: 1000
     _hasLatch: 0
     _latchSize: 1

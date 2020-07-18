@@ -35,6 +35,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public int Pole => pole;
 
+        public string PoleString {get{if (pole == 1) {return "Effective Pole: N";} else if (pole == -1) {return "Effective Pole: S";}else {return "what";}}}
+
         private double vacuumPermeability = 0.0000004f * Math.PI;
 
         private ElectroMagnetColliderScript _electroMagnetCollider;
@@ -75,7 +77,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public float MagneticPoleStrength => Data.MaxMagneticPoleStrength * _input.Value * Convert.ToInt32(!_battery.IsEmpty);
 
-        public Vector3 DirectionFromStoN => Vector3.Normalize(MagneticEffectPointPosition - BodyAttachPointPosition) * Pole;
+        public Vector3 DirectionFromStoN => Vector3.Normalize(MagneticEffectPointPosition - BodyAttachPointPosition) * pole;
 
         public Vector3 MagneticDipoleMoment => MagneticPoleStrength * Data.Diameter * 0.25f * DirectionFromStoN;
 
@@ -211,7 +213,24 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
-        public string GetText(string Label)
+        public String GetText1(string Label)
+        {
+            string result = null;
+            switch (Label)
+            {
+                case "Input Volt":
+                    result = $"{Data.Volt} V" ; break;
+                case "Ampere":
+                    result = $"{_inputAmpere.ToString("F")} A" ; break;
+                case "Watt":
+                    result = $"{PowerConsumption:n} W" ; break;
+                case "PoleStrength":
+                    result = $"{MagneticPoleStrength:n} Am" ; break;
+            }
+            return result;
+        }
+        
+        public string GetText2(string Label)
         {
             string result = null;
             if (IsUnlocking) {if (Label == "Status")
@@ -220,17 +239,16 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 }
                 else{result = "Unlocking";}}
             else if (IsDocked) {result = "Locked";}
-            else if (!base.PartScript.Data.Activated) {result = "Turned Off";}
             else if (IsDocking){if (Label == "Status")
                 {
                     if (_alignmentTime <= Time.deltaTime) {result = "Attracting";}
                     else {result = $"Locking ({Units.GetPercentageString(_alignmentTime, _maxAlignmentTime)})";}
                 }
+                else if (Label == "Target") {result = $"{_otherElectroMagnet.PartScript.Data.Name} ({_otherElectroMagnet.PartScript.Data.Id.ToString()})";}
                 else if (Label == "Force") {result = Units.GetForceString(_force + _otherElectroMagnet._force);}
                 else if (Label == "Distance") {result = Units.GetDistanceString(Vector3.Magnitude(MagneticEffectPointPosition - _otherElectroMagnet.MagneticEffectPointPosition));}
                 else {result = null;}
             }
-            else if (base.PartScript.Data.Activated) {result = "Standby";}
             return result;
         }
 
@@ -244,16 +262,31 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public override void OnGenerateInspectorModel(PartInspectorModel model)
         {
-            model.Add(new TextModel("Status", () => GetText("Status")));
-            model.Add(new TextModel("Distance", () => GetText("Distance")));
-            model.Add(new TextModel("Force", () => GetText("Force")));
-            IconButtonModel changePole = new IconButtonModel("International Docking System Standard/Sprites/PoleSelector", delegate{ChangePole();}, "Change Pole");
+            var poleChanger = new SpinnerModel(() => PoleString);
+            poleChanger.PrevClicked = s => ChangePole();
+            poleChanger.NextClicked = s => ChangePole();
+
+            var electroMagnetInfo = new GroupModel("Electroagnet Info");
+            electroMagnetInfo.Add(new TextModel("Volt", () => GetText1("Volt")));
+            electroMagnetInfo.Add(new TextModel("Ampere", () => GetText1("Ampere")));
+            electroMagnetInfo.Add(new TextModel("Watt", () => GetText1("Watt")));
+            electroMagnetInfo.Add(new TextModel("Pole Strength", () => GetText1("PoleStrength")));
+            electroMagnetInfo.Add(poleChanger);
+            model.AddGroup(electroMagnetInfo);
+
+            var latchApproachInfo = new GroupModel("Latch Approach Info");
+            latchApproachInfo.Add(new TextModel("Status", () => GetText2("Status")));
+            latchApproachInfo.Add(new TextModel("Target", () => GetText2("Target")));
+            latchApproachInfo.Add(new TextModel("Distance", () => GetText2("Distance")));
+            latchApproachInfo.Add(new TextModel("Force", () => GetText2("Force")));
+            latchApproachInfo.Visible = IsDocking || IsDocked || IsUnlocking;
+            model.AddGroup(latchApproachInfo);  
+
             IconButtonModel iconButtonModel = new IconButtonModel("Ui/Sprites/Flight/IconPartInspectorUndock", delegate{Unlocking();}, "Unlock");
             iconButtonModel.UpdateAction = delegate(ItemModel x)
             {
                 x.Visible = IsDocked;
             };
-            model.IconButtonRow.Add(changePole);
             model.IconButtonRow.Add(iconButtonModel);
         }
 
@@ -315,11 +348,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     }
                 }
                 joint.Destroy();
-                Vector3 force = -base.transform.up;
-                float num = 10f;
-                base.PartScript.BodyScript.RigidBody.WakeUp();
-                force *= num;
-                base.PartScript.BodyScript.RigidBody.AddForceAtPosition(force, base.PartScript.Transform.position, ForceMode.Impulse);
                 Game.Instance.AudioPlayer.PlaySound(AudioLibrary.Flight.DockDisconnect, base.transform.position);
                 latchPetal.gameObject.SetActive(true);
                 break;
