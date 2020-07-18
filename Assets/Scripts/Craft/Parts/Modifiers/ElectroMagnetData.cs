@@ -67,7 +67,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public float LatchSize {get{return _latchSize;} private set{_latchSize = value; base.Script.UpdateSize();}}
 
-        public HasLatch DrawLatch => _hasLatch;
+        public bool DrawLatch => Convert.ToBoolean(_hasLatch);
 
         ISliderProperty forceSlider;
 
@@ -80,9 +80,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             d.OnValueLabelRequested(() => _turnPerLength, (float NewVal) => $"{NewVal.ToString()} Turn / m");
             d.OnValueLabelRequested(() => _latchSize, (float NewVal) => $"{LatchSize.ToString("F")} m");
 
-            d.OnPropertyChanged(() => _size, (float NewVal, float OldVal) => {Script.UpdateSize(); d.Manager.RefreshUI(); LatchSize = Math.Max(NewVal, LatchSize);});
+            d.OnPropertyChanged(() => _size, (float NewVal, float OldVal) => {Script.UpdateSize(); LatchSize = Math.Max(NewVal, LatchSize);});
             d.OnPropertyChanged(() => _hasLatch, (HasLatch NewVal, HasLatch OldVal) => {Script.SetLatchMode();});
-            d.OnPropertyChanged(() => _latchSize, (float NewVal, float OldVal) => {Script.UpdateSize(); d.Manager.RefreshUI(); LatchSize = Math.Max(NewVal, Diameter);});
+            d.OnPropertyChanged(() => _latchSize, (float NewVal, float OldVal) => {Script.UpdateSize(); LatchSize = Math.Max(NewVal, Diameter);});
 
             d.OnVisibilityRequested(() => _latchSize, (bool NewVal) => Convert.ToBoolean(_hasLatch));
 
