@@ -269,7 +269,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public override void OnGenerateInspectorModel(PartInspectorModel model)
         {
             var poleChanger = new LabelButtonModel("Effective Pole", b => ChangePole());
-            poleChanger.UpdateAction = delegate(ItemModel x) {poleChanger.ButtonLabel = PoleString;};
+            poleChanger.UpdateAction = (ItemModel x) => {poleChanger.ButtonLabel = PoleString;};
             poleChanger.ButtonLabel = PoleString;
 
             var electroMagnetInfo = new GroupModel("Electroagnet Info");
@@ -289,7 +289,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             model.AddGroup(latchApproachInfo);  
 
             IconButtonModel iconButtonModel = new IconButtonModel("Ui/Sprites/Flight/IconPartInspectorUndock", delegate{Unlocking();}, "Unlock");
-            iconButtonModel.UpdateAction = delegate(ItemModel x) {x.Visible = IsDocked;};
+            iconButtonModel.UpdateAction = (ItemModel x) => {x.Visible = IsDocked;};
             model.IconButtonRow.Add(iconButtonModel);
         }
 
