@@ -11,7 +11,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             {
                 ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
                 ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-                if (thatModifier != null && thatModifier != thisModifier) {thatModifier.NearbyMagnets.Add(thisModifier.GetInstanceID(), thisModifier);}
+                if (thatModifier != null) {thatModifier.NearbyMagnets.Add(thisModifier.GetInstanceID(), thisModifier);}
             }
         }
 
@@ -21,7 +21,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             {
                 ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
                 ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-                if (thatModifier != null && thatModifier != thisModifier && !thatModifier.NearbyMagnets.ContainsKey(thisModifier.GetInstanceID()))
+                if (thatModifier != null && !thatModifier.NearbyMagnets.ContainsKey(thisModifier.GetInstanceID()))
                 {
                     thatModifier.NearbyMagnets.Add(thisModifier.GetInstanceID(), thisModifier);
                 }
@@ -34,7 +34,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             {
                 ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
                 ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-                if (thatModifier != null && thatModifier != thisModifier) {thatModifier.NearbyMagnets.Remove(thisModifier.GetInstanceID());}
+                if (thatModifier != null) {thatModifier.NearbyMagnets.Remove(thisModifier.GetInstanceID());}
             }
         }
     }

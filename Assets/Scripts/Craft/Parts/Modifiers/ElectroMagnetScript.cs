@@ -67,11 +67,13 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private Transform latchPetal;
 
+        private GameObject latch;
+
         private IFuelSource _battery;
 
         private IInputController _input;
 
-        public float MagneticPoleStrength => Data.MaxMagneticPoleStrength * _input.Value;
+        public float MagneticPoleStrength => Data.MaxMagneticPoleStrength * _input.Value * Convert.ToInt32(!_battery.IsEmpty);
 
         public Vector3 DirectionFromStoN => Vector3.Normalize(MagneticEffectPointPosition - BodyAttachPointPosition) * Pole;
 
@@ -82,8 +84,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         private float _inputAmpere => _input.Value * Data.MaxAmpere;
         
         public float PowerConsumption => _inputAmpere * Data.Volt;
-
-        public bool HasPower;
 
         static Vector3 LatchMove = new Vector3(0f, 0f, 0.0375f);
 
@@ -96,6 +96,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 		void IDesignerStart.DesignerStart(in DesignerFrameData frame)
 		{
 			UpdateSize();
+            SetLatchMode();
 		}
 
         void IFlightStart.FlightStart(in FlightFrameData frame)
@@ -107,7 +108,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             UpdateForce();
             
-            if (HasPower) {_battery.RemoveFuel(PowerConsumption * frame.DeltaTime);}
+            Debug.Log($"Craft ID: {GetComponentInParent<CraftScript>().Data.Name} Part ID: {GetComponentInParent<PartScript>().Data.Id} Count: {NearbyMagnets.Count} Input: {_input.Value}");
+
+            if (!_battery.IsEmpty) {_battery.RemoveFuel(PowerConsumption * frame.DeltaTime);}
             else {base.PartScript.Data.Activated = false;}
 
             if (NearbyMagnets.Count > 0)
@@ -127,7 +130,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     _magneticForceAtCurrentPosition += magneticForce;
                     NearbyForces.Add(items.Key, magneticForce);
 
-                    if (Data.LatchSize == ThatMagnet.Data.LatchSize && Pole != ThatMagnet.Pole) {NearbyLatchesKeys.Add(distanceSQR, items.Key);}
+                    if (Data.LatchSize == ThatMagnet.Data.LatchSize && Pole != ThatMagnet.Pole && !ThatMagnet.IsDocked) {NearbyLatchesKeys.Add(distanceSQR, items.Key);}
                 }
                 
                 if (NearbyLatchesKeys.Count > 0 && !IsDocked)
@@ -149,7 +152,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                     }
                 }
 
-                Magnetism(_magneticForceAtCurrentPosition);
+                Magnetism(_magneticForceAtCurrentPosition, MagneticEffectPointPosition);
+                Magnetism(_magneticForceAtCurrentPosition, BodyAttachPointPosition);
                 //_BFieldAtCurrentPoistion = 2 * _magneticForceAtCurrentPosition * Convert.ToSingle(vacuumPermeability / Data.Area);
             }
             
@@ -269,6 +273,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             base.OnCraftStructureChanged(craftScript);
             _battery = base.PartScript.BatteryFuelSource;
+            _input = GetInputController("PowerInput");
         }
 
 
@@ -325,12 +330,15 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             base.OnInitialized();
             _electroMagnetCollider = GetComponentInChildren<ElectroMagnetColliderScript>();
-            magnet = Utilities.FindFirstGameObjectMyselfOrChildren("ElectroMagnet", base.PartScript.GameObject).transform;;
+            magnet = Utilities.FindFirstGameObjectMyselfOrChildren("ElectroMagnet", base.PartScript.GameObject).transform;
+            GameObject Latch = Utilities.FindFirstGameObjectMyselfOrChildren("LatchBase", base.gameObject);
             trigger = Utilities.FindFirstGameObjectMyselfOrChildren("Trigger", base.PartScript.GameObject).transform;
             latchBase = Utilities.FindFirstGameObjectMyselfOrChildren("LatchBase", base.PartScript.GameObject).transform;
             latchPetal = Utilities.FindFirstGameObjectMyselfOrChildren("LatchPetal", base.PartScript.GameObject).transform;
+            latch = Utilities.FindFirstGameObjectMyselfOrChildren("LatchBase", base.gameObject);
             _electroMagnetCollider.gameObject.SetActive(!Game.InDesignerScene);
             UpdateSize();
+            SetLatchMode();
         }
 
         public void UpdateForce()
@@ -356,9 +364,16 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
+        public void SetLatchMode()
+        {
+            if (Data.DrawLatch == ElectroMagnetData.HasLatch.Disabled) {latch.SetActive(false);}
+            else {latch.SetActive(true);}
+        }
+
         public override void OnSymmetry(SymmetryMode mode, IPartScript originalPart, bool created)
         {
             UpdateSize();
+            SetLatchMode();
         }
 
         private static ConfigurableJoint CreateJoint(IBodyScript jointBody, Vector3 jointPosition, Vector3 jointAxis, Vector3 secondaryAxis, Rigidbody connectedBody, Vector3 connectedPosition)
@@ -394,8 +409,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             {
                 StartCoroutine(OnDockingCompleteNextFrame(craftScript.CraftNode.Name, craftScript2.CraftNode.Name));
                 CraftSplitter.MergeCraftNode(craftScript2.CraftNode as CraftNode, craftScript.CraftNode as CraftNode);
-                CraftBuilder.CreateBodyJoint(CreateDockingPartConnection(_otherElectroMagnet, craftScript));
             }
+            CraftBuilder.CreateBodyJoint(CreateDockingPartConnection(_otherElectroMagnet, craftScript));
             base.PartScript.PrimaryCollider.enabled = false;
             base.PartScript.PrimaryCollider.enabled = true;
             Game.Instance.AudioPlayer.PlaySound(AudioLibrary.Flight.DockConnect, base.transform.position);
@@ -498,7 +513,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
-        public void Magnetism(Vector3 magneticForce) {GetComponentInParent<Rigidbody>().AddForce(magneticForce);}
+        public void Magnetism(Vector3 magneticForce, Vector3 pole)
+        {GetComponentInParent<Rigidbody>().AddForceAtPosition(magneticForce, pole);}
 
     }
 }
