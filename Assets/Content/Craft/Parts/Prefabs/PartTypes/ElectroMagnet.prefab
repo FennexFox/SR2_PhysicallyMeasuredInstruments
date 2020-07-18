@@ -157,6 +157,7 @@ MonoBehaviour:
     _inspectorEnabled: 1
     _partPropertiesEnabled: 1
     _staticPriceAndMass: 0
+    _isNorthPole: 0
     _size: 1
     _maxAmpere: 120
     _turnPerLength: 1000

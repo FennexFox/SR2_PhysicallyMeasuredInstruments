@@ -21,26 +21,36 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 */
 
         public enum HasLatch {Disabled, Enabled};
+        public enum isNorthPole {North, South};
 
         [SerializeField]
-		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Diameter", Order = 0, Tooltip = "Changes the size of the magnet core material.")]
+        [DesignerPropertySpinner(Label = "Effective Pole", Order = 1, Tooltip = "The Magnetic Pole of the effective face.")]
+        private isNorthPole _isNorthPole;
+
+        [SerializeField]
+		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Diameter", Order = 1, Tooltip = "Changes the size of the magnet core material.")]
 		private float _size = 1f;
 
         [SerializeField]
-		[DesignerPropertySlider(20f, 240f, 12, Label = "Max Ampere", Order = 1, Tooltip = "Changes the max electric current you can put into the magnet.")]
+		[DesignerPropertySlider(20f, 240f, 12, Label = "Max Ampere", Order = 2, Tooltip = "Changes the max electric current you can put into the magnet.")]
 		private float _maxAmpere = 120f;
 
         [SerializeField]
-		[DesignerPropertySlider(500f, 10000f, 20, Label = "Turn Per Length", Order = 2, Tooltip = "Changes the number of turns of the coil per length.")]
+		[DesignerPropertySlider(500f, 10000f, 20, Label = "Turn Per Length", Order = 3, Tooltip = "Changes the number of turns of the coil per length.")]
 		private float _turnPerLength = 1000f;
 
         [SerializeField]
-        [DesignerPropertySpinner(Label = "Latch Locker", Order = 3, Tooltip = "Electoragnets with latch mechanism of same size can lock into each other, transfer fuel and electricity.")]
+        [DesignerPropertySpinner(Label = "Latch Locker", Order = 4, Tooltip = "Electoragnets with latch mechanism of same size can lock into each other, transfer fuel and electricity.")]
         private HasLatch _hasLatch;
 
         [SerializeField]
 		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Latch Diameter", Order = 5, Tooltip = "Changes the size of the locking mehchanism.")]
 		private float _latchSize = 1f;
+
+        public int pole
+        {
+            get {if (_isNorthPole == isNorthPole.North) {return 1;} else if (_isNorthPole == isNorthPole.South) {return -1;} else {return 0;}}
+        }
 
         private double _area => Math.PI * Diameter * Diameter / 4f;
 

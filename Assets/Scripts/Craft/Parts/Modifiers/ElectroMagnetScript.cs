@@ -31,7 +31,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private float _maxAlignmentTime = 1F;
 
-        private int pole = 1; // This means MagneticEffectPoint is N pole
+        private int pole;
 
         public int Pole => pole;
 
@@ -269,6 +269,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public override void OnGenerateInspectorModel(PartInspectorModel model)
         {
             var poleChanger = new LabelButtonModel("Effective Pole", b => ChangePole());
+            poleChanger.UpdateAction = delegate(ItemModel x) {poleChanger.ButtonLabel = PoleString;};
             poleChanger.ButtonLabel = PoleString;
 
             var electroMagnetInfo = new GroupModel("Electroagnet Info");
@@ -288,10 +289,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             model.AddGroup(latchApproachInfo);  
 
             IconButtonModel iconButtonModel = new IconButtonModel("Ui/Sprites/Flight/IconPartInspectorUndock", delegate{Unlocking();}, "Unlock");
-            iconButtonModel.UpdateAction = delegate(ItemModel x)
-            {
-                x.Visible = IsDocked;
-            };
+            iconButtonModel.UpdateAction = delegate(ItemModel x) {x.Visible = IsDocked;};
             model.IconButtonRow.Add(iconButtonModel);
         }
 
@@ -362,6 +360,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         protected override void OnInitialized()
         {
             base.OnInitialized();
+            pole = Data.pole;
             _electroMagnetCollider = GetComponentInChildren<ElectroMagnetColliderScript>();
             magnet = Utilities.FindFirstGameObjectMyselfOrChildren("ElectroMagnet", base.PartScript.GameObject).transform;
             GameObject Latch = Utilities.FindFirstGameObjectMyselfOrChildren("LatchBase", base.gameObject);
