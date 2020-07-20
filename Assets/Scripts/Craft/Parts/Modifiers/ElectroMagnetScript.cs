@@ -227,11 +227,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 case "Volt":
                     result = $"{Data.Volt} V" ; break;
                 case "Ampere":
-                    result = $"{_inputAmpere.ToString("F")} A" ; break;
+                    result = $"{_inputAmpere.ToString()} A" ; break;
                 case "Watt":
-                    result = $"{PowerConsumption:n} W" ; break;
+                    result = $"{PowerConsumption} W" ; break;
                 case "PoleStrength":
-                    result = $"{MagneticPoleStrength:n} Am" ; break;
+                    result = $"{MagneticPoleStrength} Am" ; break;
             }
             return result;
         }
