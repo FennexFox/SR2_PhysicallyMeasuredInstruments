@@ -85,7 +85,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private float _inputAmpere => _input.Value * Data.MaxAmpere;
         
-        public float PowerConsumption => _inputAmpere * Data.Volt;
+        public float PowerConsumption => _inputAmpere * Data.Volt / 1000f; // 1 power unit = 1 kw
 
         static Vector3 LatchMove = new Vector3(0f, 0f, 0.0375f);
 
@@ -227,11 +227,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 case "Volt":
                     result = $"{Data.Volt} V" ; break;
                 case "Ampere":
-                    result = $"{_inputAmpere.ToString()} A" ; break;
+                    result = $"{_inputAmpere.ToString("N0")} A" ; break;
                 case "Watt":
-                    result = $"{PowerConsumption} W" ; break;
+                    result = $"{PowerConsumption*1000f:n0} W" ; break;
                 case "PoleStrength":
-                    result = $"{MagneticPoleStrength} Am" ; break;
+                    result = $"{MagneticPoleStrength:n2} Am" ; break;
             }
             return result;
         }

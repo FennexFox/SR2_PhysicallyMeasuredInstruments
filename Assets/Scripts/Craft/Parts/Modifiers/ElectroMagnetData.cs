@@ -11,7 +11,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
     [Serializable]
     [DesignerPartModifier("ElectroMagnet")]
-    [PartModifierTypeId("InternationalDockingSystemStandard.ElectroMagnet")]
+    [PartModifierTypeId("PhysicallyMeasuredInstruments.ElectroMagnet")]
     public class ElectroMagnetData : PartModifierData<ElectroMagnetScript>
     {
 /*
@@ -85,10 +85,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
-            d.OnValueLabelRequested(() => _size, (float NewVal) => $"{NewVal.ToString("F")} m");
-            d.OnValueLabelRequested(() => _maxAmpere, (float NewVal) => $"{NewVal.ToString()} A");
-            d.OnValueLabelRequested(() => _turnPerLength, (float NewVal) => $"{NewVal.ToString()} Turn / m");
-            d.OnValueLabelRequested(() => _latchSize, (float NewVal) => $"{LatchSize.ToString("F")} m");
+            d.OnValueLabelRequested(() => _size, (float NewVal) => $"{NewVal.ToString("N")} m");
+            d.OnValueLabelRequested(() => _maxAmpere, (float NewVal) => $"{NewVal.ToString("N0")} A");
+            d.OnValueLabelRequested(() => _turnPerLength, (float NewVal) => $"{NewVal.ToString("N0")} Turn / m");
+            d.OnValueLabelRequested(() => _latchSize, (float NewVal) => $"{LatchSize.ToString("N")} m");
 
             d.OnPropertyChanged(() => _size, (float NewVal, float OldVal) => {Script.UpdateSize(); LatchSize = Math.Max(NewVal, LatchSize);});
             d.OnPropertyChanged(() => _hasLatch, (HasLatch NewVal, HasLatch OldVal) => {Script.SetLatchMode();});
