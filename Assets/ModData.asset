@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: ModData
   m_EditorClassIdentifier: 
   _assemblies:
-  - PhysicallyMeasuredInstruments.dll
+  - Physically Measured Instruments.dll
   _author: AnotherFireFox
-  _description: 
+  _description: This mod adds some physically measured instruments.
   _loadPriority: 1000
-  _name: PhysicallyMeasuredInstruments
+  _name: Physically Measured Instruments
   _otherAssets: []
   _prefabs: []
   _steamDescription: 
@@ -37,4 +37,5 @@ MonoBehaviour:
   _partStyleExtensions: []
   _partTextureStyles: []
   _persistentObjects: []
-  _uiResourceDatabases: []
+  _uiResourceDatabases:
+  - {fileID: 11400000, guid: 5340d9db8cf9b9a4b928b384d165516e, type: 2}
