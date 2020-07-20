@@ -5,47 +5,37 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
     public class ElectroMagnetColliderScript : MonoBehaviour
     {
-        private int PreviousOne;
-
         private void OnTriggerEnter(Collider other)
         {
-            PartScript componentInParent = other.GetComponentInParent<PartScript>();
-            if (componentInParent != null)
+            if (other.GetComponentInParent<PartScript>() != null && !other.isTrigger)
             {
-                ElectroMagnetScript modifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-                ElectroMagnetScript modifier2 = componentInParent.GetModifier<ElectroMagnetScript>();
-                if (modifier2 != null)
-                {
-                    modifier.OnTouchDockingPort(modifier2);
-                }
+                ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                if (thatModifier != null) {thatModifier.NearbyMagnets.Add(thisModifier.GetInstanceID(), thisModifier);}
             }
         }
 
         private void OnTriggerStay(Collider other)
         {
-            PartScript componentInParent = other.GetComponentInParent<PartScript>();
-            if (other.GetInstanceID() == PreviousOne) {return;}
-            else if (componentInParent != null)
+            if (other.GetComponentInParent<PartScript>() != null && !other.isTrigger)
             {
-                ElectroMagnetScript modifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-                ElectroMagnetScript modifier2 = componentInParent.GetModifier<ElectroMagnetScript>();
-                if (modifier2 != null) {modifier.OnTouchDockingPort(modifier2);}
-            }
-            PreviousOne = other.GetInstanceID();
-        }
-
-        /*private void OnTriggerExit(Collider other)
-        {
-            PartScript componentInParent = other.GetComponentInParent<PartScript>();
-            if (componentInParent != null)
-            {
-                ElectroMagnetScript modifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
-                ElectroMagnetScript modifier2 = componentInParent.GetModifier<ElectroMagnetScript>();
-                if (modifier2 != null)
+                ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                if (thatModifier != null && !thatModifier.NearbyMagnets.ContainsKey(thisModifier.GetInstanceID()))
                 {
-                    modifier.OtherElectroMagnet = null;
+                    thatModifier.NearbyMagnets.Add(thisModifier.GetInstanceID(), thisModifier);
                 }
             }
-        }*/
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.GetComponentInParent<PartScript>() != null && !other.isTrigger)
+            {
+                ElectroMagnetScript thisModifier = GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                ElectroMagnetScript thatModifier = other.GetComponentInParent<PartScript>().GetModifier<ElectroMagnetScript>();
+                if (thatModifier != null) {thatModifier.NearbyMagnets.Remove(thisModifier.GetInstanceID());}
+            }
+        }
     }
 }

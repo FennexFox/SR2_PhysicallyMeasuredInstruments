@@ -14,85 +14,89 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     [PartModifierTypeId("InternationalDockingSystemStandard.ElectroMagnet")]
     public class ElectroMagnetData : PartModifierData<ElectroMagnetScript>
     {
+/*
         [SerializeField]
 		[DesignerPropertySlider(800f, 2400f, 101, Label = "Magnetic Force", Order = 1, Tooltip = "Magnetic Force of the electro magnet at its surface(Diameter * 0.125m).")]
-		private float _magneticForce = 1600f; // SR2 Force is 100 times stronger than real life, 1600f means 160kN
+		private float _magneticPoleStrength = 1600f; // SR2 Force is 100 times stronger than real life, 1600f means 160kN
+*/
+
+        public enum HasLatch {Disabled, Enabled};
+        public enum isNorthPole {North, South};
 
         [SerializeField]
-		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Diameter", Order = 2, Tooltip = "Changes the size of the magnet.")]
+        [DesignerPropertySpinner(Label = "Effective Pole", Order = 1, Tooltip = "The Magnetic Pole of the effective face.")]
+        private isNorthPole _isNorthPole;
+
+        [SerializeField]
+		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Diameter", Order = 1, Tooltip = "Changes the size of the magnet core material.")]
 		private float _size = 1f;
 
         [SerializeField]
-		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Latch Diameter", Order = 3, Tooltip = "Changes the size of the locking mehchanism.")]
+		[DesignerPropertySlider(20f, 240f, 12, Label = "Max Ampere", Order = 2, Tooltip = "Changes the max electric current you can put into the magnet.")]
+		private float _maxAmpere = 120f;
+
+        [SerializeField]
+		[DesignerPropertySlider(500f, 10000f, 20, Label = "Turn Per Length", Order = 3, Tooltip = "Changes the number of turns of the coil per length.")]
+		private float _turnPerLength = 1000f;
+
+        [SerializeField]
+        [DesignerPropertySpinner(Label = "Latch Locker", Order = 4, Tooltip = "Electoragnets with latch mechanism of same size can lock into each other, transfer fuel and electricity.")]
+        private HasLatch _hasLatch;
+
+        [SerializeField]
+		[DesignerPropertySlider(0.05f, 2f, 40, Label = "Latch Diameter", Order = 5, Tooltip = "Changes the size of the locking mehchanism.")]
 		private float _latchSize = 1f;
 
-        public float MagneticForce
+        public int pole
         {
-            get
-            {
-                return _magneticForce;
-            }
-            private set
-            {
-                _magneticForce = value;
-                base.Script.UpdateForce();
-            }
+            get {if (_isNorthPole == isNorthPole.North) {return 1;} else if (_isNorthPole == isNorthPole.South) {return -1;} else {return 0;}}
         }
 
-        public float Diameter
-        {
-            get
-            {
-                return _size;
-            }
-            private set
-            {
-                _size = value;
-                base.Script.UpdateSize();
-            }
-        }
+        private double _area => Math.PI * Diameter * Diameter / 4f;
 
-        public float LatchSize
-        {
-            get
-            {
-                return _latchSize;
-            }
-            private set
-            {
-                _latchSize = value;
-                base.Script.UpdateSize();
-            }
-        }
+/*
+        private double _coilResistance => (_coilResistivity * _turnPerLength / _coilCrossSection) * (_size * 0.25f) * (Math.PI * _size);
+
+        private float _coilResistivity = 0.0000000168f; // from "shorturl.at/vxV18"
+
+        private float _coilCrossSection = 0.0000002f; // from "shorturl.at/vxV18"
+*/
+        public float Volt = 120f; // from Orion Spacecraft; gonna be configurable soon
+
+        public float MaxMagneticPoleStrength => Convert.ToSingle(_area) * MaxAmpere * TurnPerLength * 0.01f; // SR2 Forces are 100 times stronger
+
+        public float Diameter {get{return _size;} private set{_size = value; base.Script.UpdateSize();}}
+
+        public double Area => _area;
+        
+        public double Volume => _area * 0.25f * Diameter;
+
+        public float MaxAmpere => _maxAmpere;
+
+        public float TurnPerLength => _turnPerLength;
+
+        public float LatchSize {get{return _latchSize;} private set{_latchSize = value; base.Script.UpdateSize();}}
+
+        public bool DrawLatch => Convert.ToBoolean(_hasLatch);
 
         ISliderProperty forceSlider;
 
-        public override float Mass => (8000f * Diameter * Diameter * Diameter + 25f * LatchSize * LatchSize * LatchSize) * 0.01f; // SR2 mass is 100 times lighter
+        public override float Mass => (8000f * Diameter * Diameter * Diameter + 25f * LatchSize * LatchSize * LatchSize * Convert.ToInt32(_hasLatch)) * 0.01f; // SR2 mass is 100 times lighter
 
 		protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
 		{
-			d.OnValueLabelRequested(() => _magneticForce, (float x) => Units.GetForceString(x));
-            d.OnValueLabelRequested(() => _size, (float x) => $"{x.ToString("F")}m");
-            d.OnValueLabelRequested(() => _latchSize, (float x) => $"{LatchSize.ToString("F")}m");
+            d.OnValueLabelRequested(() => _size, (float NewVal) => $"{NewVal.ToString("F")} m");
+            d.OnValueLabelRequested(() => _maxAmpere, (float NewVal) => $"{NewVal.ToString()} A");
+            d.OnValueLabelRequested(() => _turnPerLength, (float NewVal) => $"{NewVal.ToString()} Turn / m");
+            d.OnValueLabelRequested(() => _latchSize, (float NewVal) => $"{LatchSize.ToString("F")} m");
 
-            d.OnPropertyChanged(() => _magneticForce, (x, y) => {Script.UpdateForce();});
-            d.OnPropertyChanged
-            (
-                () => _size,
-                (x, y) =>
-                {
-                    Script.UpdateSize();
-                    float minVal = 800f * x * x;
-                    float maxVal = 2400f * x * x;
-                    forceSlider.UpdateSliderSettings(minVal, maxVal, 101);
-                    MagneticForce = Mathf.Clamp(MagneticForce, minVal, maxVal);
-                    LatchSize = Math.Max(x, LatchSize);
-                }
-            );
-            d.OnPropertyChanged(() => _latchSize, (x, y) => {Script.UpdateSize(); LatchSize = Math.Max(x, Diameter);});
+            d.OnPropertyChanged(() => _size, (float NewVal, float OldVal) => {Script.UpdateSize(); LatchSize = Math.Max(NewVal, LatchSize);});
+            d.OnPropertyChanged(() => _hasLatch, (HasLatch NewVal, HasLatch OldVal) => {Script.SetLatchMode();});
+            d.OnPropertyChanged(() => _latchSize, (float NewVal, float OldVal) => {Script.UpdateSize(); LatchSize = Math.Max(NewVal, Diameter);});
+
+            d.OnVisibilityRequested(() => _latchSize, (bool NewVal) => Convert.ToBoolean(_hasLatch));
+
             d.OnAnyPropertyChanged(() => DesignerPropertyChagned());
-
-            d.OnSliderActivated(() => _magneticForce, (ISliderProperty x) => {x.UpdateSliderSettings(800f * _size * _size, 2400f * _size * _size, 101); forceSlider = x;});
         }
 
         private void DesignerPropertyChagned()

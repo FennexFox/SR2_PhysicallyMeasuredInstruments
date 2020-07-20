@@ -15,20 +15,6 @@ MonoBehaviour:
   _models:
   - _id: ElectroMagnet
     _meshes:
-    - _id: Cylinder
-      _initialized: 1
-      _isCollider: 0
-      _mesh: {fileID: 2534964839176971238, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: Cylinder.001
-      _initialized: 1
-      _isCollider: 0
-      _mesh: {fileID: -7387706064836869012, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 04000000
-      _subpartId: 0
     - _id: LatchBase
       _initialized: 1
       _isCollider: 0
@@ -99,117 +85,26 @@ MonoBehaviour:
         type: 3}
       _submeshMap: 00000000
       _subpartId: 0
-    - _id: LatchPetal.009
+    - _id: MagnetBase
       _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: -5972761787364965604, guid: 214b4a25e0902ec499b632be7ff3a67a,
+      _isCollider: 0
+      _mesh: {fileID: 3561774117524686383, guid: 214b4a25e0902ec499b632be7ff3a67a,
         type: 3}
       _submeshMap: 00000000
       _subpartId: 0
-    - _id: LatchPetal.010
+    - _id: MagnetEmmisive
       _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: -4154046259821713869, guid: 214b4a25e0902ec499b632be7ff3a67a,
+      _isCollider: 0
+      _mesh: {fileID: 6069002670274133912, guid: 214b4a25e0902ec499b632be7ff3a67a,
         type: 3}
-      _submeshMap: 00000000
+      _submeshMap: 04000000
       _subpartId: 0
-    - _id: LatchPetal.011
+    - _id: LatchPetalIndicator
       _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: 6897092898601517451, guid: 214b4a25e0902ec499b632be7ff3a67a,
+      _isCollider: 0
+      _mesh: {fileID: -6754169337184823831, guid: 214b4a25e0902ec499b632be7ff3a67a,
         type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.012
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: -6898576559724776930, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.013
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: 8233165877314090442, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.014
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: -2152240210082121733, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.015
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: -1700447218756779030, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.016
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: -5156760597231848832, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.017
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: 5085154672628363001, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.018
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: 6463343545174811023, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.019
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: 2984607784240250553, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.020
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: 3774335831227347508, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.021
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: -9207171343992711071, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.022
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: -782958431407826800, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.023
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: 1762037013712923265, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
-      _subpartId: 0
-    - _id: LatchPetal.024
-      _initialized: 1
-      _isCollider: 1
-      _mesh: {fileID: 9045784337510847590, guid: 214b4a25e0902ec499b632be7ff3a67a,
-        type: 3}
-      _submeshMap: 00000000
+      _submeshMap: 04000000
       _subpartId: 0
     _model: {fileID: -927199367670048503, guid: 214b4a25e0902ec499b632be7ff3a67a,
       type: 3}

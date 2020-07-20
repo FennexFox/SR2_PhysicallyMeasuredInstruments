@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 36439903172785449}
   - component: {fileID: 5522285500738744049}
   - component: {fileID: 5502087757198830847}
+  - component: {fileID: 3139177453905012747}
   m_Layer: 0
   m_Name: ElectroMagnet
   m_TagString: Untagged
@@ -156,6 +157,55 @@ MonoBehaviour:
     _inspectorEnabled: 1
     _partPropertiesEnabled: 1
     _staticPriceAndMass: 0
-    _magneticForce: 1600
+    _isNorthPole: 0
     _size: 1
+    _maxAmpere: 120
+    _turnPerLength: 1000
+    _hasLatch: 0
     _latchSize: 1
+    Volt: 0
+--- !u!114 &3139177453905012747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511336617587611650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1938718678, guid: 55a7c5278766598448d9083b0de0861d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Data:
+    _id: 
+    _inputId: PowerInput
+    _inspectorEnabled: 1
+    _partPropertiesEnabled: 1
+    _staticPriceAndMass: 0
+    _activationGroup: 0
+    _currentValue: 1
+    _designerInputOptions: 
+    _ignorePartActivationState: 0
+    _input: Slider1
+    _inputAxisRange:
+      _maxValue: 1
+      _minValue: 0
+      _zeroValue: 0
+    _inputAxisRangeDesigner: 
+    _invert: 0
+    _invertOnMirror: 0
+    _invertType: 0
+    _max: 1
+    _min: 0
+    _outputCurveAmplitude: 1
+    _outputCurveFrequency: 1
+    _outputCurveKeyframes: 
+    _outputCurveOffset: 0
+    _outputCurveStyle: 4
+    _outputCurveWrapMode: 8
+    _overrideInput: 
+    _showActivationGroup: 0
+    _showInputAxis: 1
+    _showInvert: 1
+    _type: 0
+    _zeroOnDeactivate: 1

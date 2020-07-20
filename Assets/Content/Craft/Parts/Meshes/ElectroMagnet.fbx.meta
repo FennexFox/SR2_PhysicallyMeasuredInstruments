@@ -91,30 +91,21 @@ ModelImporter:
   humanoidOversampling: 1
   avatarSetup: 0
   additionalBone: 0
-  userData: <PartModelData><PartMeshData id="Cylinder" submeshCount="1" isCollider="false"
-    subpartId="0" submeshMap="0" /><PartMeshData id="Cylinder.001" submeshCount="1"
-    isCollider="false" subpartId="0" submeshMap="4" /><PartMeshData id="LatchBase"
-    submeshCount="1" isCollider="false" subpartId="0" submeshMap="0" /><PartMeshData
-    id="LatchPetal" submeshCount="1" isCollider="false" subpartId="0" submeshMap="2"
-    /><PartMeshData id="LatchPetal.001" submeshCount="1" isCollider="false" /><PartMeshData
-    id="LatchPetal.002" submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.003"
-    submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.004" submeshCount="1"
-    isCollider="false" /><PartMeshData id="LatchPetal.005" submeshCount="1" isCollider="false"
-    /><PartMeshData id="LatchPetal.006" submeshCount="1" isCollider="false" /><PartMeshData
-    id="LatchPetal.007" submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.008"
-    submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.009" submeshCount="1"
-    isCollider="false" /><PartMeshData id="LatchPetal.010" submeshCount="1" isCollider="false"
-    /><PartMeshData id="LatchPetal.011" submeshCount="1" isCollider="false" /><PartMeshData
-    id="LatchPetal.012" submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.013"
-    submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.014" submeshCount="1"
-    isCollider="false" /><PartMeshData id="LatchPetal.015" submeshCount="1" isCollider="false"
-    /><PartMeshData id="LatchPetal.016" submeshCount="1" isCollider="false" /><PartMeshData
-    id="LatchPetal.017" submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.018"
-    submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.019" submeshCount="1"
-    isCollider="false" /><PartMeshData id="LatchPetal.020" submeshCount="1" isCollider="false"
-    /><PartMeshData id="LatchPetal.021" submeshCount="1" isCollider="false" /><PartMeshData
-    id="LatchPetal.022" submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.023"
-    submeshCount="1" isCollider="false" /><PartMeshData id="LatchPetal.024" submeshCount="1"
-    isCollider="false" /></PartModelData>
+  userData: <PartModelData><PartMeshData id="LatchBase" submeshCount="1" isCollider="false"
+    subpartId="0" submeshMap="0" /><PartMeshData id="LatchPetal" submeshCount="1"
+    isCollider="false" subpartId="0" submeshMap="2" /><PartMeshData id="LatchPetal.001"
+    submeshCount="1" isCollider="true" subpartId="0" submeshMap="0" /><PartMeshData
+    id="LatchPetal.002" submeshCount="1" isCollider="true" subpartId="0" submeshMap="0"
+    /><PartMeshData id="LatchPetal.003" submeshCount="1" isCollider="true" subpartId="0"
+    submeshMap="0" /><PartMeshData id="LatchPetal.004" submeshCount="1" isCollider="true"
+    subpartId="0" submeshMap="0" /><PartMeshData id="LatchPetal.005" submeshCount="1"
+    isCollider="true" subpartId="0" submeshMap="0" /><PartMeshData id="LatchPetal.006"
+    submeshCount="1" isCollider="true" subpartId="0" submeshMap="0" /><PartMeshData
+    id="LatchPetal.007" submeshCount="1" isCollider="true" subpartId="0" submeshMap="0"
+    /><PartMeshData id="LatchPetal.008" submeshCount="1" isCollider="true" subpartId="0"
+    submeshMap="0" /><PartMeshData id="MagnetBase" submeshCount="1" isCollider="false"
+    subpartId="0" submeshMap="0" /><PartMeshData id="MagnetEmmisive" submeshCount="1"
+    isCollider="false" subpartId="0" submeshMap="4" /><PartMeshData id="LatchPetalIndicator"
+    submeshCount="1" isCollider="false" subpartId="0" submeshMap="4" /></PartModelData>
   assetBundleName: 
   assetBundleVariant: 
