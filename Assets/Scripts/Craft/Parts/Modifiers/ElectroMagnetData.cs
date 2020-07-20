@@ -11,7 +11,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
     [Serializable]
     [DesignerPartModifier("ElectroMagnet")]
-    [PartModifierTypeId("InternationalDockingSystemStandard.ElectroMagnet")]
+    [PartModifierTypeId("PhysicallyMeasuredInstruments.ElectroMagnet")]
     public class ElectroMagnetData : PartModifierData<ElectroMagnetScript>
     {
 /*

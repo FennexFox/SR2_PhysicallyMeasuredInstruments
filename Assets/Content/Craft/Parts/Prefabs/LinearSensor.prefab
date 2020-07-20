@@ -122,7 +122,7 @@ GameObject:
   - component: {fileID: 1502631542672298717}
   - component: {fileID: 1977439647246607013}
   m_Layer: 0
-  m_Name: LinearSensor
+  m_Name: LinearResistance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

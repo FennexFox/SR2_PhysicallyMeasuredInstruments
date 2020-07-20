@@ -11,7 +11,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
     [Serializable]
     [DesignerPartModifier("AccelerationControlledExtender")]
-    [PartModifierTypeId("InternationalDockingSystemStandard.AccelerationControlledExtender")]
+    [PartModifierTypeId("PhysicallyMeasuredInstruments.AccelerationControlledExtender")]
     public class AccelerationControlledExtenderData : PartModifierData<AccelerationControlledExtenderScript>
     {
         private const float DefaultRange = 0.5f;
