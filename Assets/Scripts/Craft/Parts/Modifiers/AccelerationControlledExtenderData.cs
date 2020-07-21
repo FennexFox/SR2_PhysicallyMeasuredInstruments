@@ -43,8 +43,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         [DesignerPropertySlider(0.5f, 2.5f, 21, Label = "Width", Order = 2, Tooltip = "Changes the width of the piston.")]
         private float _width = 1f; // change it to _baseSize
 
-        private float _maxAcceleration = 200f;
-
         public int AttachPointIndex
         {
             get;
@@ -64,8 +62,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         }
 
         public override float Mass => CalculateVolume() * 1550f * 0.01f;
-
-        public float MaxAcceleration { get { return _maxAcceleration; } set {_maxAcceleration = value;} }
 
         public bool PreventBreaking => _preventBreaking;
 
@@ -117,7 +113,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         {
             base.OnCreated(partModifierXml);
             AttachPointIndex = 0;
-            MaxAcceleration = 200f;
         }
 
         protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)

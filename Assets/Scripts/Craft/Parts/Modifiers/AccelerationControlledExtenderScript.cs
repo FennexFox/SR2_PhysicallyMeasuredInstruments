@@ -106,7 +106,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             if (Math.Abs(_currentVelocity) <= 0.001f ) { _moving = false; }
             else { _moving = true; }
 
-            float _targetAcceleration = _input.Value * Data.MaxAcceleration;
+            float _targetAcceleration = _input.Value * Data.Acceleration;
             float _nextLength = _currentLength + ( _currentVelocity + _targetAcceleration * Time.fixedDeltaTime ) * Time.fixedDeltaTime;
 
             if ( Data.Length < _nextLength ) { base.Data.CurrentPosition = Data.Length; }
@@ -127,7 +127,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         void IFlightStart.FlightStart(in FlightFrameData frame)
         {
             _audio = base.PartScript.GameObject.GetComponent<AudioSource>();
-            _input = GetInputController();
+            _input = GetInputController("Extender");
             FindAndSetupConnectionJoint();
             UpdateScale();
             base.Data.UpdateAttachPoint();
