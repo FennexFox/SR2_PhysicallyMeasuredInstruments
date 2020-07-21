@@ -105,7 +105,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
             //Data.CurrentPosition = ;
             _priorLength = _currentLength;
-            Debug.Log(_joint.transform.localPosition);
         }
 
         void IFlightStart.FlightStart(in FlightFrameData frame)
