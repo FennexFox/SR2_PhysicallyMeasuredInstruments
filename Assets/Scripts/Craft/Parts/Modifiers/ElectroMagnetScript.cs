@@ -109,8 +109,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         void IFlightFixedUpdate.FlightFixedUpdate(in FlightFrameData frame)
         {
             UpdateForce();
-            
-            Debug.Log($"Craft ID: {GetComponentInParent<CraftScript>().Data.Name} Part ID: {GetComponentInParent<PartScript>().Data.Id} Count: {NearbyMagnets.Count} Input: {_input.Value}");
 
             if (!_battery.IsEmpty) {_battery.RemoveFuel(PowerConsumption * frame.DeltaTime);}
             else {base.PartScript.Data.Activated = false;}
