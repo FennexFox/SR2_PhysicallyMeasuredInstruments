@@ -29,7 +29,10 @@ MonoBehaviour:
   _versionMajor: 0
   _versionMinor: 1
   _partCategories: []
-  _parts: []
+  _parts:
+  - {fileID: 4900000, guid: 914bb717b82140c4e9152c1ebd25c6e6, type: 3}
+  - {fileID: 4900000, guid: b97b9e094583ffb4d9f36c893fa7f878, type: 3}
+  - {fileID: 4900000, guid: 5de286f553a145c46bb0ecf81fe375de, type: 3}
   _partStyleExtensions: []
   _partTextureStyles: []
   _persistentObjects: []
