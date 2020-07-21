@@ -82,13 +82,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             if (!_initializationComplete) { return; }
             if (base.PartScript.CommandPod == null || _input == null) { return; }
 
-            float _currentLength = Data.CurrentPosition;
-            float _currentVelocity = (_currentLength - _priorLength) / Time.deltaTime;
-            if (Math.Abs(_currentVelocity) <= 0.001f ) { _moving = false; }
-            else { _moving = true; }
-
-            if (_updatePistonShaft) { UpdateShaftExtension(); }
-
             if (_joint != null && !_bodyJoint.PartConnection.IsDestroyed)
             {
                 _joint.connectedBody.WakeUp();
@@ -103,8 +96,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 jointDrive.maximumForce = Math.Abs(_input.Value * Data.Force);
                 _joint.xDrive = jointDrive;
             }
-            //Data.CurrentPosition = ;
-            _priorLength = _currentLength;
+            Vector3 position = _joint.connectedBody.transform.TransformPoint(_joint.connectedAnchor);
+            Vector3 vector = base.PartScript.BodyScript.Transform.InverseTransformPoint(position);
+            Data.CurrentPosition = vector.y - 0.5f;
+
+            if (_updatePistonShaft) { UpdateShaftExtension(); }
         }
 
         void IFlightStart.FlightStart(in FlightFrameData frame)
