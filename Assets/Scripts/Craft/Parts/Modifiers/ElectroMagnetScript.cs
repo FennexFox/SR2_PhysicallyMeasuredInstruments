@@ -270,7 +270,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             poleChanger.UpdateAction = (ItemModel x) => {poleChanger.ButtonLabel = PoleString;};
             poleChanger.ButtonLabel = PoleString;
 
-            var electroMagnetInfo = new GroupModel("Electroagnet Info");
+            var electroMagnetInfo = new GroupModel("ElectroMagnet Info");
             electroMagnetInfo.Add(new TextModel("Input Volt", () => GetText1("Volt")));
             electroMagnetInfo.Add(new TextModel("Ampere", () => GetText1("Ampere")));
             electroMagnetInfo.Add(new TextModel("Watt", () => GetText1("Watt")));
