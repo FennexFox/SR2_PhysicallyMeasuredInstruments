@@ -45,23 +45,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         [DesignerPropertySlider(0.5f, 2.5f, 21, Label = "Width", Order = 2, Tooltip = "Changes the width of the piston.")]
         private float _width = 1f; // change it to _baseSize
 
-        public int AttachPointIndex
-        {
-            get;
-            set;
-        }
+        public int AttachPointIndex {get; set;}
 
-        public float CurrentPosition
-        {
-            get
-            {
-                return _currentPosition;
-            }
-            set
-            {
-                _currentPosition = value;
-            }
-        }
+        public float CurrentPosition {get{return _currentPosition;} set{_currentPosition = value;}}
 
         public override float Mass => CalculateVolume() * 1550f * 0.01f;
 
@@ -71,18 +57,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public float Length => _length;
 
-        public float Width
-        {
-            get
-            {
-                return _width;
-            }
-            set
-            {
-                _width = value;
-                base.Script.UpdateScale();
-            }
-        }
+        public float Width {get{return _width;} set{_width = value; base.Script.UpdateScale();}}
 
         public float Force => _force;
 
@@ -137,14 +112,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             d.OnVisibilityRequested(() => _width, (bool x) => base.Part.AttachPoints[AttachPointIndex].IsAvailable);
             d.OnVisibilityRequested(() => _length, (bool x) => base.Part.AttachPoints[AttachPointIndex].IsAvailable);
             d.OnVisibilityRequested(() => _editMessage, (bool x) => IsCakeALie());
-            d.OnLabelActivated(() => _editMessage, delegate(ILabelProperty x)
-            {
-                x.SetPreferredHeight(60f);
-            });
-            //d.OnSliderActivated(() => _length, delegate(ISliderProperty x)
-            //{
-            //    x.UpdateSliderSettings(0, 4f * BaseSize, BaseSize * 35 + 1);
-            //});
+            d.OnLabelActivated(() => _editMessage, (ILabelProperty x) => x.SetPreferredHeight(60f));
+            //d.OnSliderActivated(() => _length, (ISliderProperty x) => x.UpdateSliderSettings(0, 4f * BaseSize, BaseSize * 35 + 1));
         }
 
         private bool IsCakeALie()
