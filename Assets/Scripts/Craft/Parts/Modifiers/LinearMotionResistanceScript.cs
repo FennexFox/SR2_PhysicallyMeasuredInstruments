@@ -158,7 +158,7 @@
 			_joint.yMotion = ConfigurableJointMotion.Locked;
 			_joint.zMotion = ConfigurableJointMotion.Locked;
 			
-			_joint.targetPosition = new Vector3(0.5f, 0f, 0f) * base.Data.Part.Config.PartScale.y * base.Data.Size;
+			_joint.targetPosition = new Vector3(0.5f, 0f, 0f) * base.Data.Part.Config.PartScale.y * base.Data.Height;
 			_joint.anchor = _bodyJoint.Body.Transform.InverseTransformPoint(_bottomPoint.position);
 		}
 	}

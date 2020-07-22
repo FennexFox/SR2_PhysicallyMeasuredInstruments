@@ -157,8 +157,8 @@ MonoBehaviour:
     _inspectorEnabled: 1
     _partPropertiesEnabled: 1
     _staticPriceAndMass: 0
-    _resistance: 1
-    _dislocation: 1
+    _resistance: 0.01
+    _dislocation: 0
     _preventBreaking: 0
-    _size: 1
+    _height: 0.5
     _thickness: 1
