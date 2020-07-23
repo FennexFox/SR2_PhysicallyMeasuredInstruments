@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: ModData
   m_EditorClassIdentifier: 
   _assemblies:
-  - Physically Measured Instruments.dll
+  - RealMagnets.dll
   _author: AnotherFireFox
-  _description: 
+  _description: This mod adds ElectroMagnets, push and pull, consume electricity.
   _loadPriority: 1000
-  _name: Physically Measured Instruments
+  _name: RealMagnets
   _otherAssets: []
   _prefabs: []
   _steamDescription: 
@@ -27,14 +27,10 @@ MonoBehaviour:
   _steamTitle: 
   _steamVisibility: 0
   _versionMajor: 0
-  _versionMinor: 1
+  _versionMinor: 12
   _partCategories: []
   _parts:
-  - {fileID: 4900000, guid: 9a5ab9ec0e804834abc03e5bb7a535fb, type: 3}
-  - {fileID: 4900000, guid: 914bb717b82140c4e9152c1ebd25c6e6, type: 3}
   - {fileID: 4900000, guid: b97b9e094583ffb4d9f36c893fa7f878, type: 3}
-  - {fileID: 4900000, guid: 5de286f553a145c46bb0ecf81fe375de, type: 3}
-  - {fileID: 4900000, guid: 1839c33c88830f74abbd92dab555f1a2, type: 3}
   _partStyleExtensions: []
   _partTextureStyles: []
   _persistentObjects: []

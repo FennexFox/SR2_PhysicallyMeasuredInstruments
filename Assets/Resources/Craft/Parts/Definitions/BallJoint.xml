@@ -14,17 +14,7 @@
     </SubpartTypes>
   </PartType>
   <DesignerParts>
-    <DesignerPart name="Ball Joint" category="Gizmos" description="A Ball Joint which let attached part to swing around in any axis." order="600" showInDesigner="true" snapshotDistanceScaler="1.25" snapshotRotation="30,-45,0">
-      <Assembly>
-        <Parts>
-          <Part id="1" partType="BallJoint" position="0,0,0" rotation="-90,-90,0">
-            <Config />
-            <BallJoint />
-          </Part>
-        </Parts>
-      </Assembly>
-    </DesignerPart>
-    <DesignerPart name="Spring-Locked Ball Joint" category="Gizmos" description="A Ball joint locked with springs." order="600" showInDesigner="true" snapshotDistanceScaler="1.25" snapshotRotation="30,-45,0">
+    <DesignerPart name="Spring-Locked Ball Joint" category="Gizmos" description="A Ball joint locked with springs and dampers." order="600" showInDesigner="true" snapshotDistanceScaler="1.25" snapshotRotation="30,-45,0">
       <Assembly>
         <Parts>
           <Part id="1" partType="BallJoint" position="0,0,0" rotation="-90,-90,0">

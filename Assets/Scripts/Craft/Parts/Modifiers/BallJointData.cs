@@ -5,6 +5,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     using ModApi.Craft.Parts;
     using ModApi.Craft.Parts.Attributes;
     using ModApi.Design.PartProperties;
+    using ModApi.Math;
     using System;
     using UnityEngine;
 
@@ -50,11 +51,11 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         private float _range = 30f;
 
         [SerializeField]
-        [DesignerPropertySlider(0f, 1000f, 1001, Tooltip = "Changes the force of spring of the ball joint.")]
+        [DesignerPropertySlider(0f, 10f, 1001, Tooltip = "Changes the force of spring of the ball joint.")]
         private float _springForce = 0f;
 
         [SerializeField]
-        [DesignerPropertySlider(0f, 1000f, 1001, Tooltip = "Changes the retarding force of spring of the ball joint.")]
+        [DesignerPropertySlider(0f, 10f, 1001, Tooltip = "Changes the retarding force of spring of the ball joint.")]
         private float _damperForce = 0f;
 
         public float Angle
@@ -131,24 +132,17 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             }
         }
 
-        static string FormatNewton (float x)
-        {
-            return x.ToString() + "N";
-        }
         protected override void OnDesignerInitialization(IDesignerPartPropertiesModifierInterface d)
         {
             d.OnValueLabelRequested(() => _range, (float x) => (x.ToString() + "°"));
-            d.OnValueLabelRequested(() => _springForce, (float x) => FormatNewton(x));
-            d.OnValueLabelRequested(() => _damperForce, (float x) => FormatNewton(x));
-            d.OnPropertyChanged(() => _baseMode, delegate(BaseMode newVal, BaseMode oldVal)
+            d.OnValueLabelRequested(() => _springForce, (float x) => Units.GetForceString(x));
+            d.OnValueLabelRequested(() => _damperForce, (float x) => Units.GetForceString(x));
+            d.OnPropertyChanged(() => _baseMode, (BaseMode newVal, BaseMode oldVal) =>
             {
                 base.Script.SetBaseMeshesActiveByMode(newVal);
                 Symmetry.SynchronizePartModifiers(base.Part.PartScript);
             });
-            d.OnSliderActivated(() => _range, delegate(ISliderProperty x)
-            {
-                x.UpdateSliderSettings(_minRange, _maxRange, (_maxRange - _minRange) / 5 + 1);
-            });
+            d.OnSliderActivated(() => _range, (ISliderProperty x) => {x.UpdateSliderSettings(_minRange, _maxRange, (_maxRange - _minRange) / 5 + 1);});
          }
     }
 }
