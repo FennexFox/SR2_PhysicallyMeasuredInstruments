@@ -361,7 +361,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             pole = Data.pole;
             _electroMagnetCollider = GetComponentInChildren<ElectroMagnetColliderScript>();
             magnet = Utilities.FindFirstGameObjectMyselfOrChildren("ElectroMagnet", base.PartScript.GameObject).transform;
-            GameObject Latch = Utilities.FindFirstGameObjectMyselfOrChildren("LatchBase", base.gameObject);
             trigger = Utilities.FindFirstGameObjectMyselfOrChildren("Trigger", base.PartScript.GameObject).transform;
             latchBase = Utilities.FindFirstGameObjectMyselfOrChildren("LatchBase", base.PartScript.GameObject).transform;
             latchPetal = Utilities.FindFirstGameObjectMyselfOrChildren("LatchPetal", base.PartScript.GameObject).transform;
