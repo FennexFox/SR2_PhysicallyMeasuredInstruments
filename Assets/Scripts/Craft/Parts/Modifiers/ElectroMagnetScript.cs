@@ -156,10 +156,10 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                         _magneticForceAtCurrentPosition -= NearbyForces[ClosestLatchKey];
                         Dock(NearbyMagnets[ClosestLatchKey]);
                     }
+                    else {DestroyMagneticJoint();}
                 }
 
                 Magnetism(_magneticForceAtCurrentPosition, MagneticEffectPointPosition);
-                Magnetism(_magneticForceAtCurrentPosition, BodyAttachPointPosition);
                 //_BFieldAtCurrentPoistion = 2 * _magneticForceAtCurrentPosition * Convert.ToSingle(vacuumPermeability / Data.Area);
             }
             
