@@ -3,6 +3,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
     using Assets.Scripts;
     using Assets.Scripts.Craft;
     using Assets.Scripts.Flight.Sim;
+    using Assets.Scripts.Ui.Inspector;
     using ModApi;
     using ModApi.Audio;
     using ModApi.Craft;
@@ -27,6 +28,8 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         private Dictionary<int, Vector3> NearbyForces = new Dictionary<int, Vector3>();
 
+        private PowerInfo powerInfo;
+
         private float _alignmentTime;
 
         private float _maxAlignmentTime = 1F;
@@ -35,7 +38,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public int Pole => pole;
 
-        public string PoleString {get{if (pole == 1) {return "N";} else if (pole == -1) {return "S";}else {return "what";}}}
+        public string PoleString { get { if (pole == 1) { return "N"; } else if (pole == -1) { return "S"; } else { return "what"; } } }
 
         private double vacuumPermeability = 0.0000004f * Math.PI;
 
@@ -61,7 +64,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public Vector3 BodyAttachPointPosition => GetJointWorldPosition(base.PartScript.Data.AttachPoints[0]);
 
-        private Transform trigger; 
+        private Transform trigger;
 
         private Transform magnet;
 
@@ -83,10 +86,6 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public Vector3 Magnetization => MagneticDipoleMoment / Convert.ToSingle(Data.Volume);
 
-        private float _inputAmpere => _input.Value * Data.MaxAmpere;
-        
-        public float PowerConsumption => _inputAmpere * Data.Volt / 1000f; // 1 power unit = 1 kw
-
         static Vector3 LatchMove = new Vector3(0f, 0f, 0.0375f);
 
         public bool IsDocked => MagneticEffectPoint.PartConnections.Count > 0;
@@ -95,32 +94,32 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public bool IsUnlocking => _unLockingTimer > 0f;
 
-		void IDesignerStart.DesignerStart(in DesignerFrameData frame)
-		{
-			UpdateSize();
+        void IDesignerStart.DesignerStart(in DesignerFrameData frame)
+        {
+            UpdateSize();
             SetLatchMode();
-		}
+        }
 
         void IFlightStart.FlightStart(in FlightFrameData frame)
         {
             _input = GetInputController("PowerInput");
+            powerInfo = new PowerInfo(_input, base.PartScript.BatteryFuelSource, Data.InputVolt, Data.MaxAmpere, Data.Resistance);
         }
 
         void IFlightFixedUpdate.FlightFixedUpdate(in FlightFrameData frame)
         {
             UpdateForce();
 
-            if (!_battery.IsEmpty) {_battery.RemoveFuel(PowerConsumption * frame.DeltaTime);}
-            else {base.PartScript.Data.Activated = false;}
+            powerInfo.ConsumePower(frame.DeltaTime, this.PartScript);
 
             if (NearbyMagnets.Count > 0)
             {
                 _magneticForceAtCurrentPosition = Vector3.zero;
                 NearbyLatchesKeys.Clear(); NearbyForces.Clear();
 
-                if (_otherElectroMagnet != null && (_otherElectroMagnet.PartScript.Data.IsDestroyed || Pole == _otherElectroMagnet.Pole)) {DestroyMagneticJoint();}
+                if (_otherElectroMagnet != null && (_otherElectroMagnet.PartScript.Data.IsDestroyed || Pole == _otherElectroMagnet.Pole)) { DestroyMagneticJoint(); }
 
-                foreach(KeyValuePair<int, ElectroMagnetScript> items in NearbyMagnets)
+                foreach (KeyValuePair<int, ElectroMagnetScript> items in NearbyMagnets)
                 {
                     ElectroMagnetScript ThatMagnet = items.Value;
                     float distanceSQR = Vector3.SqrMagnitude(ThatMagnet.MagneticEffectPointPosition - MagneticEffectPointPosition);
@@ -138,7 +137,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                         }
                     }
                 }
-                
+
                 if (NearbyLatchesKeys.Count > 0 && !IsDocked)
                 {
                     List<float> NearbyLatchesDistanceSQR = NearbyLatchesKeys.Keys.ToList();
@@ -148,21 +147,21 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
                     if (_otherElectroMagnet != null)
                     {
-                        if (_otherElectroMagnet.GetInstanceID() != ClosestLatchKey) {DestroyMagneticJoint();}
-                        else {_magneticForceAtCurrentPosition -= NearbyForces[_otherElectroMagnet.GetInstanceID()];}
+                        if (_otherElectroMagnet.GetInstanceID() != ClosestLatchKey) { DestroyMagneticJoint(); }
+                        else { _magneticForceAtCurrentPosition -= NearbyForces[_otherElectroMagnet.GetInstanceID()]; }
                     }
                     else if (NearbyMagnets[ClosestLatchKey]._otherElectroMagnet == null || NearbyMagnets[ClosestLatchKey]._otherElectroMagnet == this)
                     {
                         _magneticForceAtCurrentPosition -= NearbyForces[ClosestLatchKey];
                         Dock(NearbyMagnets[ClosestLatchKey]);
                     }
-                    else {DestroyMagneticJoint();}
+                    else { DestroyMagneticJoint(); }
                 }
 
                 Magnetism(_magneticForceAtCurrentPosition, MagneticEffectPointPosition);
                 //_BFieldAtCurrentPoistion = 2 * _magneticForceAtCurrentPosition * Convert.ToSingle(vacuumPermeability / Data.Area);
             }
-            
+
             if (_otherElectroMagnet != null)
             {
                 bool IsRotate = false;
@@ -198,9 +197,9 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         void IFlightUpdate.FlightUpdate(in FlightFrameData frame)
         {
-            if (!IsDocking && !IsDocked && latchPetal.transform.localPosition.z > 0f) {LatchPetalControl(false, frame);}
-            if (_unLockingTimer > 0f) {_unLockingTimer -= frame.DeltaTime; LatchPetalControl(false, frame);}
-            if (0f > _unLockingTimer)  {_unLockingTimer = 0f; Unlock();}
+            if (!IsDocking && !IsDocked && latchPetal.transform.localPosition.z > 0f) { LatchPetalControl(false, frame); }
+            if (_unLockingTimer > 0f) { _unLockingTimer -= frame.DeltaTime; LatchPetalControl(false, frame); }
+            if (0f > _unLockingTimer) { _unLockingTimer = 0f; Unlock(); }
         }
 
         void LatchPetalControl(bool extension, in FlightFrameData frame)
@@ -213,45 +212,33 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             else
             {
                 latchPetal.transform.localPosition -= LatchMove * frame.DeltaTime;
-                latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);                    
+                latchPetal.transform.localPosition = Vector3.Max(latchPetal.transform.localPosition, Vector3.zero);
             }
         }
 
-        public String GetText1(string Label)
+        public string GetLatchApproachInfo(string Label)
         {
             string result = null;
-            switch (Label)
+            if (IsUnlocking)
             {
-                case "Volt":
-                    result = $"{Data.Volt} V" ; break;
-                case "Ampere":
-                    result = $"{_inputAmpere.ToString("N0")} A" ; break;
-                case "Watt":
-                    result = $"{PowerConsumption*1000f:n0} W" ; break;
-                case "PoleStrength":
-                    result = $"{MagneticPoleStrength:n2} Am" ; break;
-            }
-            return result;
-        }
-        
-        public string GetText2(string Label)
-        {
-            string result = null;
-            if (IsUnlocking) {if (Label == "Status")
+                if (Label == "Status")
                 {
                     result = $"Unlocking ({Units.GetPercentageString(_maxAlignmentTime - _unLockingTimer, _maxAlignmentTime)})";
                 }
-                else{result = "Unlocking";}}
-            else if (IsDocked) {result = "Locked";}
-            else if (IsDocking){if (Label == "Status")
+                else { result = "Unlocking"; }
+            }
+            else if (IsDocked) { result = "Locked"; }
+            else if (IsDocking)
+            {
+                if (Label == "Status")
                 {
-                    if (_alignmentTime <= Time.deltaTime) {result = "Attracting";}
-                    else {result = $"Locking ({Units.GetPercentageString(_alignmentTime, _maxAlignmentTime)})";}
+                    if (_alignmentTime <= Time.deltaTime) { result = "Attracting"; }
+                    else { result = $"Locking ({Units.GetPercentageString(_alignmentTime, _maxAlignmentTime)})"; }
                 }
-                else if (Label == "Target") {result = $"{_otherElectroMagnet.PartScript.Data.Name} ({_otherElectroMagnet.PartScript.Data.Id.ToString()})";}
-                else if (Label == "Force") {result = Units.GetForceString(_force + _otherElectroMagnet._force);}
-                else if (Label == "Distance") {result = Units.GetDistanceString(Vector3.Magnitude(MagneticEffectPointPosition - _otherElectroMagnet.MagneticEffectPointPosition));}
-                else {result = null;}
+                else if (Label == "Target") { result = $"{_otherElectroMagnet.PartScript.Data.Name} ({_otherElectroMagnet.PartScript.Data.Id.ToString()})"; }
+                else if (Label == "Force") { result = Units.GetForceString(_force + _otherElectroMagnet._force); }
+                else if (Label == "Distance") { result = Units.GetDistanceString(Vector3.Magnitude(MagneticEffectPointPosition - _otherElectroMagnet.MagneticEffectPointPosition)); }
+                else { result = null; }
             }
             return result;
         }
@@ -259,42 +246,40 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public override void OnDeactivated()
         {
             base.OnDeactivated();
-            if (_otherElectroMagnet != null) {DestroyMagneticJoint();}
+            if (_otherElectroMagnet != null) { DestroyMagneticJoint(); }
         }
 
-        private void ChangePole() {pole *= -1;}
+        private void ChangePole() { pole *= -1; }
 
         public override void OnGenerateInspectorModel(PartInspectorModel model)
         {
-            var poleChanger = new LabelButtonModel("Effective Pole", b => ChangePole());
-            poleChanger.UpdateAction = (ItemModel x) => {poleChanger.ButtonLabel = PoleString;};
-            poleChanger.ButtonLabel = PoleString;
+            powerInfo.AddPowerInfo(model);
 
-            var electroMagnetInfo = new GroupModel("ElectroMagnet Info");
-            electroMagnetInfo.Add(new TextModel("Input Volt", () => GetText1("Volt")));
-            electroMagnetInfo.Add(new TextModel("Ampere", () => GetText1("Ampere")));
-            electroMagnetInfo.Add(new TextModel("Watt", () => GetText1("Watt")));
-            electroMagnetInfo.Add(new TextModel("Pole Strength", () => GetText1("PoleStrength")));
-            electroMagnetInfo.Add(poleChanger);
-            model.AddGroup(electroMagnetInfo);
+            var poleChanger = new LabelButtonModel("Effective Pole", b => ChangePole());
+            poleChanger.UpdateAction = (ItemModel x) => { poleChanger.ButtonLabel = PoleString; };
+            poleChanger.ButtonLabel = PoleString;
+            var ElectroMagnetInfo = new GroupModel("Electromagnet Info");
+            //ElectromagnetInfo.Add(new TextModel("PoleStrength", () => GetElectroMagnetInfo("PoleStrength")));
+            ElectroMagnetInfo.Add(poleChanger);
+            model.AddGroup(ElectroMagnetInfo);
 
             var latchApproachInfo = new GroupModel("Latch Approach Info");
-            latchApproachInfo.Add(new TextModel("Status", () => GetText2("Status")));
-            latchApproachInfo.Add(new TextModel("Target", () => GetText2("Target")));
-            latchApproachInfo.Add(new TextModel("Distance", () => GetText2("Distance")));
-            latchApproachInfo.Add(new TextModel("Force", () => GetText2("Force")));
+            latchApproachInfo.Add(new TextModel("Status", () => GetLatchApproachInfo("Status")));
+            latchApproachInfo.Add(new TextModel("Target", () => GetLatchApproachInfo("Target")));
+            latchApproachInfo.Add(new TextModel("Distance", () => GetLatchApproachInfo("Distance")));
+            latchApproachInfo.Add(new TextModel("Force", () => GetLatchApproachInfo("Force")));
             latchApproachInfo.Visible = IsDocking || IsDocked || IsUnlocking;
-            model.AddGroup(latchApproachInfo);  
+            model.AddGroup(latchApproachInfo);
 
-            IconButtonModel iconButtonModel = new IconButtonModel("Ui/Sprites/Flight/IconPartInspectorUndock", delegate{Unlocking();}, "Unlock");
-            iconButtonModel.UpdateAction = (ItemModel x) => {x.Visible = IsDocked;};
+            IconButtonModel iconButtonModel = new IconButtonModel("Ui/Sprites/Flight/IconPartInspectorUndock", delegate { Unlocking(); }, "Unlock");
+            iconButtonModel.UpdateAction = (ItemModel x) => { x.Visible = IsDocked; };
             model.IconButtonRow.Add(iconButtonModel);
         }
 
         public override void OnPhysicsChanged(bool enabled)
         {
             base.OnPhysicsChanged(enabled);
-            if (!enabled && _magneticJoint != null) {DestroyMagneticJoint();}
+            if (!enabled && _magneticJoint != null) { DestroyMagneticJoint(); }
         }
 
         public override void OnCraftLoaded(ICraftScript craftScript, bool movedToNewCraft)
@@ -306,14 +291,14 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public override void OnCraftStructureChanged(ICraftScript craftScript)
         {
             base.OnCraftStructureChanged(craftScript);
-            _battery = base.PartScript.BatteryFuelSource;
+            if (powerInfo != null) { powerInfo.UpdateBattery(base.PartScript.BatteryFuelSource); }
             _input = GetInputController("PowerInput");
         }
 
 
         public void Unlocking()
         {
-            if (!base.PartScript.CraftScript.IsPhysicsEnabled || !IsDocked) {return;}
+            if (!base.PartScript.CraftScript.IsPhysicsEnabled || !IsDocked) { return; }
             PartConnection partConnection = MagneticEffectPoint.PartConnections[0];
             foreach (IBodyJoint joint in base.PartScript.BodyScript.Joints)
             {
@@ -329,7 +314,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 _unLockingTimer = _maxAlignmentTime;
             }
         }
-        
+
         public void Unlock()
         {
             PartConnection partConnection = MagneticEffectPoint.PartConnections[0];
@@ -381,12 +366,17 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
             latchBase.transform.localScale = Vector3.one * Data.LatchSize;
             latchBase.transform.localPosition = new Vector3(0f, (Data.Diameter - Data.LatchSize) * 0.125f, 0f);
             trigger.transform.localScale = trigger.transform.localScale / Data.Diameter;
-            if (Game.InDesignerScene) {
+            if (Game.InDesignerScene)
+            {
                 Vector3 position = new Vector3(0f, 0.125f, 0f) * Data.Diameter;
-                foreach (AttachPoint attachPoint in base.PartScript.Data.AttachPoints) {
-                    if (attachPoint.Tag == "Body") {
+                foreach (AttachPoint attachPoint in base.PartScript.Data.AttachPoints)
+                {
+                    if (attachPoint.Tag == "Body")
+                    {
                         attachPoint.AttachPointScript.transform.localPosition = -position;
-                    } else if (attachPoint.Tag == "Magnet") {
+                    }
+                    else if (attachPoint.Tag == "Magnet")
+                    {
                         attachPoint.AttachPointScript.transform.localPosition = position;
                     }
                 }
@@ -395,7 +385,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
 
         public void SetLatchMode()
         {
-            if (Data.DrawLatch) {latch.SetActive(true);} else {latch.SetActive(false);}
+            if (Data.DrawLatch) { latch.SetActive(true); } else { latch.SetActive(false); }
         }
 
         public override void OnSymmetry(SymmetryMode mode, IPartScript originalPart, bool created)
@@ -518,7 +508,7 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
         public void SetMagneticJointForces(float distanceSQR, bool IsRotate)
         {
             JointDrive jointDrive = default(JointDrive);
-            jointDrive.maximumForce = MagneticForceMagnitude(distanceSQR, _otherElectroMagnet)/2f;
+            jointDrive.maximumForce = MagneticForceMagnitude(distanceSQR, _otherElectroMagnet) / 2f;
             _force = jointDrive.maximumForce;
             jointDrive.positionSpring = float.MaxValue;
             jointDrive.positionDamper = 0f;
@@ -533,16 +523,16 @@ namespace Assets.Scripts.Craft.Parts.Modifiers
                 _magneticJoint.angularXDrive = jointDrive;
                 Vector3 latchPetalDirection = latchPetal.transform.InverseTransformDirection(latchPetal.transform.up);
                 Vector3 dockingPortDirection = latchPetal.transform.InverseTransformDirection(_otherElectroMagnet.latchPetal.transform.up);
-                
+
                 float rotationAngle = Quaternion.FromToRotation(latchPetalDirection, dockingPortDirection).eulerAngles.z;
                 float rotationAngleMod = rotationAngle % 120;
-                if (rotationAngleMod >= 60f) {rotationAngle += rotationAngleMod;} else {rotationAngle -= rotationAngleMod;}
+                if (rotationAngleMod >= 60f) { rotationAngle += rotationAngleMod; } else { rotationAngle -= rotationAngleMod; }
                 _magneticJoint.targetRotation = Quaternion.Euler(rotationAngle, 0f, 0f);
             }
         }
 
         public void Magnetism(Vector3 magneticForce, Vector3 pole)
-        {GetComponentInParent<Rigidbody>().AddForceAtPosition(magneticForce, pole);}
+        { GetComponentInParent<Rigidbody>().AddForceAtPosition(magneticForce, pole); }
 
     }
 }

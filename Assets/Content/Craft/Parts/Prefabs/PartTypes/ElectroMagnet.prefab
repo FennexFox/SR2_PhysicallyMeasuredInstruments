@@ -163,7 +163,7 @@ MonoBehaviour:
     _turnPerLength: 1000
     _hasLatch: 0
     _latchSize: 1
-    Volt: 0
+    InputVolt: 120
 --- !u!114 &3139177453905012747
 MonoBehaviour:
   m_ObjectHideFlags: 0
